@@ -1,0 +1,23 @@
+[project]
+name = "camilo"
+version = "0.1.0"
+authors = ["Gabriel Avila", "Carlos Botelho", "Juan Lopes"]
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "ruff>=0.11.11",
+]
+
+
+[tool.uv.group.dev.dependencies]
+
+
+[build-system]
+requires = ["uv"]
+build-backend = "uv.build"
+
+[tool.pyrefly]
+project_includes = ["src"]
+warn_unused_ignores = true
+warn_untyped_defs = true
