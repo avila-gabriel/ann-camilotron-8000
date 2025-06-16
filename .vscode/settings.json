@@ -18,7 +18,9 @@
     "**/uv.lock": true,
     "**/pyproject.toml": true,
     "**/README.md": true,
-    "**/CONTRIBUTING.md": true
+    "**/CONTRIBUTING.md": true,
+    "**/.pytest_cache": true,
+    "**/__pycache__": true,
   },
   "explorer.excludeGitIgnore": false
 }
