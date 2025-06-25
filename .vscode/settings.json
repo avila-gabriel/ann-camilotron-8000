@@ -17,7 +17,7 @@
     "**/.python-version": true,
     "**/uv.lock": true,
     "**/pyproject.toml": true,
-    "**/README.md": true,
+    "**/README.md": false,
     "**/CONTRIBUTING.md": true,
     "**/.pytest_cache": true,
     "**/__pycache__": true,
