@@ -35,15 +35,15 @@ params = nn.treinar_rede(
     matriz_rotulos=y_train,
     dimensoes_camadas=(
         X_train.shape[0],
-        10,
+        32,
         1,
     ),
     nome_ativacao_oculta="relu",
     nome_ativacao_saida="linear",
     nome_funcao_erro="erro_mse",
-    taxa_aprendizado=0.02,
+    taxa_aprendizado=0.05,
     numero_epocas=2000,
-    tamanho_lote=16,
+
     verbose=True,
 )
 y_pred_train = nn.prever(
@@ -60,11 +60,16 @@ y_test_real = np.array(y_test) * (y_max - y_min) + y_min
 
 mse_train = np.mean((y_pred_train_real - y_train_real) ** 2)
 mse_test = np.mean((y_pred_test_real - y_test_real) ** 2)
+
+# raiz quadrada para voltar à unidade “real”
+rmse_train = np.sqrt(mse_train)
+rmse_test  = np.sqrt(mse_test)
+
 r2_train = r2_score(y_train_real.flatten(), y_pred_train_real.flatten())
 r2_test = r2_score(y_test_real.flatten(), y_pred_test_real.flatten())
 
-print(f"MSE treino (real): {mse_train:.2f}")
-print(f"MSE teste  (real): {mse_test:.2f}")
+print(f"MSE real treino: {rmse_train:.2f}  # (unidade $)")
+print(f"MSE real teste:  {rmse_test:.2f}  # (unidade $)")
 print(f"R² treino:         {r2_train:.4f}")
 print(f"R² teste:          {r2_test:.4f}")
 

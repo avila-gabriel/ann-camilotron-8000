@@ -49,7 +49,6 @@ params = nn.treinar_rede(
     nome_funcao_erro="erro_mse",
     taxa_aprendizado=0.01,
     numero_epocas=1500,
-    tamanho_lote=16,
     verbose=True,
 )
 
@@ -110,8 +109,6 @@ params = nn.treinar_rede(
     nome_funcao_erro="erro_binario_cruzado",
     taxa_aprendizado=0.01,
     numero_epocas=1000,
-    tamanho_lote=32,
-    dropout_prob=0.1,
     verbose=True,
 )
 
@@ -187,7 +184,6 @@ params = nn.treinar_rede(
     nome_funcao_erro="erro_categorial_cruzado",
     taxa_aprendizado=0.01,
     numero_epocas=1000,
-    tamanho_lote=32,
     verbose=True,
 )
 
