@@ -123,6 +123,12 @@ def softmax(x: jnp.ndarray) -> jnp.ndarray:
     e = jnp.exp(x - jnp.max(x, axis=0, keepdims=True))
     return e / jnp.sum(e, axis=0, keepdims=True)
 
+def softmax_derivada(grad: jnp.ndarray, x: jnp.ndarray) -> jnp.ndarray:
+    S = softmax(x)  # vetor de probabilidades
+    # Para cada amostra, jacobiana J = diag(S) - S @ S^T
+    # Então o gradiente é grad_coluna = J @ grad
+    return S * (grad - (grad * S).sum(axis=0, keepdims=True))
+
 def linear(x: jnp.ndarray) -> jnp.ndarray:
     """Ativação Linear (sem mudança)"""
     return x
