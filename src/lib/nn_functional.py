@@ -1,16 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Rede Neural Artificial em JAX com comentários para iniciantes.
-Cada parte do código foi comentada para explicar o que está acontecendo,
-os parâmetros utilizados e os valores retornados.
-"""
-
 from __future__ import annotations
 
 # Importações básicas
-from collections.abc import Sequence, Callable  # Tipos para sequências e funções
+from collections.abc import Sequence, Callable
 import jax
-import jax.numpy as jnp  # Biblioteca de arrays otimizada para JIT e GPU/TPU
+import jax.numpy as jnp 
 
 # ------------------------------------------------------------
 # 1) Função para definir a semente de aleatoriedade
