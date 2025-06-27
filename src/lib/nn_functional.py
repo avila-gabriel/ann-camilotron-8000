@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-# Importações básicas
 from collections.abc import Sequence, Callable
 import jax
 import jax.numpy as jnp 
 
 # ------------------------------------------------------------
-# 1) Função para definir a semente de aleatoriedade
+#  Função para definir a semente de aleatoriedade
 # ------------------------------------------------------------
 def definir_semente(semente: int = 42) -> jax.random.KeyArray:
     """
@@ -23,7 +22,7 @@ def definir_semente(semente: int = 42) -> jax.random.KeyArray:
 
 
 # ------------------------------------------------------------
-# 2) Função para codificação one-hot de rótulos
+#  Função para codificação one-hot de rótulos
 # ------------------------------------------------------------
 def codificar_one_hot(rotulos: jnp.ndarray, numero_classes: int) -> jnp.ndarray:
     """
@@ -50,7 +49,7 @@ def codificar_one_hot(rotulos: jnp.ndarray, numero_classes: int) -> jnp.ndarray:
 
 
 # ------------------------------------------------------------
-# 3) Inicialização dos parâmetros (pesos e vieses) da rede
+#  Inicialização dos parâmetros (pesos e vieses) da rede
 # ------------------------------------------------------------
 def inicializar_parametros_rede(
     dimensoes_camadas: Sequence[int],
@@ -91,7 +90,7 @@ def inicializar_parametros_rede(
 
 
 # ------------------------------------------------------------
-# 4) Funções de ativação e derivadas para backpropagation
+#  Funções de ativação e derivadas para backpropagation
 # ------------------------------------------------------------
 def relu(x: jnp.ndarray) -> jnp.ndarray:
     """Ativação ReLU: max(0, x)"""
@@ -144,7 +143,7 @@ _derivadas: dict[str, Callable[[jnp.ndarray, jnp.ndarray], jnp.ndarray]] = {
 }
 
 # ------------------------------------------------------------
-# 5) Propagação para frente (forward propagation)
+#  Propagação para frente (forward propagation)
 # ------------------------------------------------------------
 def propagacao_ante(
     X: jnp.ndarray,
@@ -176,7 +175,7 @@ def propagacao_ante(
     return _ativacoes[nome_ativacao_saida](ZL)
 
 # ------------------------------------------------------------
-# 6) Funções de erro (loss)
+#  Funções de erro (loss)
 # ------------------------------------------------------------
 def erro_binario_cruzado(pred: jnp.ndarray, real: jnp.ndarray) -> float:
     """Loss Cross-Entropy binário para classificação 0/1"""
@@ -194,7 +193,7 @@ def erro_mse(pred: jnp.ndarray, real: jnp.ndarray) -> float:
     return jnp.mean((pred - real) ** 2)
 
 # ------------------------------------------------------------
-# 7) Propagação para trás (backward propagation)
+#  Propagação para trás (backward propagation)
 # ------------------------------------------------------------
 def propagacao_retro(
     params: dict[str, jnp.ndarray],
@@ -250,7 +249,7 @@ def propagacao_retro(
     return grads, AL
 
 # ------------------------------------------------------------
-# 8) Atualização de parâmetros (gradiente descendente)
+#  Atualização de parâmetros (gradiente descendente)
 # ------------------------------------------------------------
 def atualizar_parametros(
     params: dict[str, jnp.ndarray],
@@ -276,7 +275,7 @@ def atualizar_parametros(
     return novos
 
 # ------------------------------------------------------------
-# 9) Loop de treinamento (training)
+#  Loop de treinamento (training)
 # ------------------------------------------------------------
 def treinar_rede(
     matriz_entrada: jnp.ndarray,
@@ -340,7 +339,7 @@ def treinar_rede(
     return params
 
 # ------------------------------------------------------------
-# 10) Função de previsão (inference)
+#  Função de previsão (inference)
 # ------------------------------------------------------------
 def prever(
     matriz_entrada: jnp.ndarray,
