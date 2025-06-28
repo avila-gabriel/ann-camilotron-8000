@@ -1,282 +1,503 @@
+"""
+Rede Neural Artificial
+
+- Vetorizada em jax.numpy
+- Backpropagação manual (sem jax.grad)
+"""
+
 from __future__ import annotations
 
-from collections.abc import Sequence, Callable
+from collections.abc import Callable, Sequence
+
 import jax
-import jax.numpy as jnp 
+import jax.numpy as jnp
+from jax._src.typing import Array
 
-# ------------------------------------------------------------
-#  Função para definir a semente de aleatoriedade
-# ------------------------------------------------------------
-def definir_semente(semente: int = 42) -> jax.random.KeyArray:
+
+def definir_semente(semente: int = 42) -> Array:
     """
-    Gera uma chave (key) de aleatoriedade para JAX a partir de um número inteiro.
+    Gera chave de aleatoriedade JAX a partir de uma semente para reprodutibilidade.
 
-    Parâmetros:
-    - semente (int): valor que inicializa o gerador de números aleatórios,
-      garantindo que os resultados possam ser reproduzidos.
+    Parâmetros
+    ----------
+    semente : int, opcional
+        Valor inteiro utilizado para inicialização do gerador de números aleatórios.
 
-    Retorno:
-    - jax.random.KeyArray: objeto interno do JAX que controla a aleatoriedade.
+    Retorna
+    -------
+    jax.random.PRNGKey
+        Chave para geração de números aleatórios no JAX.
     """
     return jax.random.key(semente)
 
 
-# ------------------------------------------------------------
-#  Função para codificação one-hot de rótulos
-# ------------------------------------------------------------
-def codificar_one_hot(rotulos: jnp.ndarray, numero_classes: int) -> jnp.ndarray:
+def codificar_one_hot(
+    rotulos_inteiros: jnp.ndarray, numero_classes: int
+) -> jnp.ndarray:
     """
-    Converte rótulos inteiros em matriz one-hot.
+    Converte um vetor de rótulos inteiros para codificação one-hot.
 
-    Parâmetros:
-    - rotulos (jnp.ndarray): vetor 1D de inteiros (0, 1, ..., numero_classes-1).
-    - numero_classes (int): quantidade total de classes distintas.
+    Parâmetros
+    ----------
+    rotulos_inteiros : jnp.ndarray
+        Array 1D contendo os rótulos (valores inteiros).
+    numero_classes : int
+        Número total de classes possíveis.
 
-    Exemplo:
-    - rotulos = [2, 0, 1], numero_classes = 3
-    - retorna matriz 3x3:
-      [[0,1,0],  # classe 0
-       [0,0,1],  # classe 1
-       [1,0,0]]  # classe 2
-
-    Retorno:
-    - jnp.ndarray de forma (numero_classes, quantidade_exemplos) com 1s na classe correta.
+    Retorna
+    -------
+    jnp.ndarray
+        Matriz one-hot de forma (numero_classes, n_amostras).
     """
-    # Cria matriz zerada de tamanho (classes x amostras)
-    matriz = jnp.zeros((numero_classes, rotulos.size))
-    # Seta 1.0 na posição correspondente a cada rótulo
-    return matriz.at[rotulos, jnp.arange(rotulos.size)].set(1.0)
+    matriz_one_hot = jnp.zeros((numero_classes, rotulos_inteiros.size))
+    matriz_one_hot = matriz_one_hot.at[
+        rotulos_inteiros, jnp.arange(rotulos_inteiros.size)
+    ].set(1.0)
+    return matriz_one_hot
 
 
-# ------------------------------------------------------------
-#  Inicialização dos parâmetros (pesos e vieses) da rede
-# ------------------------------------------------------------
 def inicializar_parametros_rede(
     dimensoes_camadas: Sequence[int],
     *,
-    chave_aleatoria: jax.random.KeyArray,
+    chave_aleatoria: Array,
     nome_ativacao_oculta: str = "relu",
-) -> tuple[dict[str, jnp.ndarray], jax.random.KeyArray]:
+) -> tuple[dict[str, jnp.ndarray], Array]:
     """
-    Gera pesos (W) e vieses (b) para cada camada da rede.
+    Inicializa pesos e vieses de todas as camadas da rede neural.
 
-    Parâmetros:
-    - dimensoes_camadas: lista como [n_entrada, n_oculta1, ..., n_saida].
-    - chave_aleatoria: objeto de aleatoriedade do JAX.
-    - nome_ativacao_oculta: 'relu' ou 'sigmoid', define escala inicial.
+    A estratégia de inicialização varia conforme a ativação oculta:
+    - Para ReLU: inicialização de He (√(2/fan_in)).
+    - Para outras ativações (sigmoid, tanh): inicialização de Xavier (√(1/fan_in)).
+    Além disso, o viés da primeira camada é inicializado com um valor
+    pequeno e positivo (0.01) quando se usa ReLU, para evitar “neurônios
+    mortos” no início.
 
-    Processamento:
-    - Para cada par de camadas, calcula limite de inicialização (He ou Xavier).
-    - Gera matriz de pesos normalizada e vetor de vieses zerado.
+    Parâmetros
+    ----------
+    dimensoes_camadas : Sequence[int]
+        Sequência contendo o número de unidades de cada camada,
+        incluindo camada de entrada e camada de saída.
+    chave_aleatoria : Array
+        Chave PRNG do JAX para geração de números aleatórios.
+    nome_ativacao_oculta : {'relu', 'sigmoid', 'tanh'}, opcional
+        Especifica a função de ativação das camadas ocultas; define
+        o método de inicialização de pesos. Padrão é 'relu'.
 
-    Retorno:
-    - params: dicionário com chaves 'W1', 'b1', ..., 'Wn', 'bn'.
-    - chave_aleatoria atualizada após vários splits.
+    Retorna
+    -------
+    parametros_rede : dict[str, jnp.ndarray]
+        Dicionário com parâmetros aprendidos da rede:
+        - W1, b1, W2, b2, … até WL, bL.
+        Cada W{i} tem forma (dimensoes_camadas[i], dimensoes_camadas[i-1]),
+        e cada b{i} tem forma (dimensoes_camadas[i], 1).
+    chave_aleatoria : Array
+        Nova chave PRNG resultante após as divisões, para uso em
+        chamadas subsequentes.
     """
-    params: dict[str, jnp.ndarray] = {}
-    # Percorre cada conexão entre camadas
+    parametros: dict[str, jnp.ndarray] = {}
     for i in range(1, len(dimensoes_camadas)):
-        chave_aleatoria, sub = jax.random.split(chave_aleatoria)
+        chave_aleatoria, subkey = jax.random.split(chave_aleatoria)
         fan_in, fan_out = dimensoes_camadas[i - 1], dimensoes_camadas[i]
-        # Escolhe limite de acordo com ativação oculta (He para ReLU, Xavier para Sigmoid)
         if nome_ativacao_oculta == "relu":
-            limite = jnp.sqrt(2.0 / fan_in)
+            limite = jnp.sqrt(2.0 / fan_in)  # He
         else:
-            limite = jnp.sqrt(1.0 / fan_in)
-        # Inicializa pesos aleatórios e vieses zerados
-        params[f"W{i}"] = jax.random.normal(sub, (fan_out, fan_in)) * limite
-        params[f"b{i}"] = jnp.zeros((fan_out, 1))
-    return params, chave_aleatoria
+            limite = jnp.sqrt(1.0 / fan_in)  # Xavier
+        parametros[f"W{i}"] = jax.random.normal(subkey, (fan_out, fan_in)) * limite
+        parametros[f"b{i}"] = (
+            0.01 if (i == 1 and nome_ativacao_oculta == "relu") else 0.0
+        ) * jnp.ones((fan_out, 1))
+    return parametros, chave_aleatoria
+
+# activations
+def relu(entrada_linear: jnp.ndarray) -> jnp.ndarray:
+    """
+    Aplica a função de ativação ReLU elemento a elemento.
+
+    Parâmetros
+    ----------
+    entrada_linear : jnp.ndarray
+        Array de ativações lineares (pré-ativação).
+
+    Retorna
+    -------
+    jnp.ndarray
+        Array com ReLU aplicada elemento a elemento.
+    """
+    return jnp.maximum(0, entrada_linear)
 
 
-# ------------------------------------------------------------
-#  Funções de ativação e derivadas para backpropagation
-# ------------------------------------------------------------
-def relu(x: jnp.ndarray) -> jnp.ndarray:
-    """Ativação ReLU: max(0, x)"""
-    return jnp.maximum(0, x)
-
-def relu_derivada(grad: jnp.ndarray, x: jnp.ndarray) -> jnp.ndarray:
-    """Derivada da ReLU para propagar gradientes"""
-    return grad * (x > 0)
-
-def sigmoid(x: jnp.ndarray) -> jnp.ndarray:
-    """Ativação Sigmoid: valor entre 0 e 1"""
-    return 1 / (1 + jnp.exp(-x))
-
-def sigmoid_derivada(grad: jnp.ndarray, x: jnp.ndarray) -> jnp.ndarray:
-    """Derivada da Sigmoid multiplicada pelo gradiente de cima"""
-    s = sigmoid(x)
-    return grad * s * (1 - s)
-
-def softmax(x: jnp.ndarray) -> jnp.ndarray:
-    """Ativação Softmax para múltiplas classes"""
-    # Subtrai maxpor coluna para evitar overflow
-    e = jnp.exp(x - jnp.max(x, axis=0, keepdims=True))
-    return e / jnp.sum(e, axis=0, keepdims=True)
-
-def softmax_derivada(grad: jnp.ndarray, x: jnp.ndarray) -> jnp.ndarray:
-    S = softmax(x)  # vetor de probabilidades
-    # Para cada amostra, jacobiana J = diag(S) - S @ S^T
-    # Então o gradiente é grad_coluna = J @ grad
-    return S * (grad - (grad * S).sum(axis=0, keepdims=True))
-
-def linear(x: jnp.ndarray) -> jnp.ndarray:
-    """Ativação Linear (sem mudança)"""
-    return x
-
-def linear_derivada(grad: jnp.ndarray, _: jnp.ndarray) -> jnp.ndarray:
-    """Derivada da ativação linear é 1"""
-    return grad
-
-# Dicionários para buscar função de ativação e derivada pelo nome
-_ativacoes: dict[str, Callable[[jnp.ndarray], jnp.ndarray]] = {
-    "relu": relu,
-    "sigmoid": sigmoid,
-    "linear": linear,
-    "softmax": softmax,
-}
-_derivadas: dict[str, Callable[[jnp.ndarray, jnp.ndarray], jnp.ndarray]] = {
-    "relu": relu_derivada,
-    "sigmoid": sigmoid_derivada,
-    "linear": linear_derivada,
-}
-
-# ------------------------------------------------------------
-#  Propagação para frente (forward propagation)
-# ------------------------------------------------------------
-def propagacao_ante(
-    X: jnp.ndarray,
-    params: dict[str, jnp.ndarray],
-    *,
-    nome_ativacao_oculta: str = "relu",
-    nome_ativacao_saida: str = "sigmoid",
+def relu_derivada(
+    gradiente_saida: jnp.ndarray, entrada_linear: jnp.ndarray
 ) -> jnp.ndarray:
     """
-    Calcula saída da rede dado input X e parâmetros.
+    Calcula o gradiente da ReLU.
 
-    Parâmetros:
-    - X: matriz de entrada (features) com shape (n_entrada, num_amostras).
-    - params: dicionário de pesos e vieses.
-    - nome_ativacao_oculta: ativação usada em camadas intermediárias.
-    - nome_ativacao_saida: ativação usada na camada final.
+    Parâmetros
+    ----------
+    gradiente_saida : jnp.ndarray
+        Gradiente do custo em relação à saída da ReLU.
+    entrada_linear : jnp.ndarray
+        Valor da entrada linear (antes da ReLU).
 
-    Retorno:
-    - Saída da rede após ativação de saída.
+    Retorna
+    -------
+    jnp.ndarray
+        Gradiente do custo em relação à entrada linear.
     """
-    A = X  # Ativação inicial é o próprio input
-    num_camadas = len(params) // 2  # cada camada tem W e b
-    # Propaga por cada camada oculta
-    for c in range(1, num_camadas):
-        Z = params[f"W{c}"] @ A + params[f"b{c}"]
-        A = _ativacoes[nome_ativacao_oculta](Z)
-    # Camada de saída
-    ZL = params[f"W{num_camadas}"] @ A + params[f"b{num_camadas}"]
-    return _ativacoes[nome_ativacao_saida](ZL)
+    return gradiente_saida * (entrada_linear > 0)
 
-# ------------------------------------------------------------
-#  Funções de erro (loss)
-# ------------------------------------------------------------
-def erro_binario_cruzado(pred: jnp.ndarray, real: jnp.ndarray) -> float:
-    """Loss Cross-Entropy binário para classificação 0/1"""
-    eps = 1e-12  # evita log(0)
-    return jnp.mean(-(real * jnp.log(pred + eps) + (1 - real) * jnp.log(1 - pred + eps)))
 
-def erro_categorial_cruzado(pred: jnp.ndarray, real: jnp.ndarray) -> float:
-    """Loss Cross-Entropy para múltiplas classes"""
-    eps = 1e-12
-    # Soma sobre classes e faz média pelas amostras
-    return -jnp.sum(real * jnp.log(pred + eps)) / real.shape[1]
+def sigmoid(entrada_linear: jnp.ndarray) -> jnp.ndarray:
+    """
+    Aplica a função sigmóide elemento a elemento.
 
-def erro_mse(pred: jnp.ndarray, real: jnp.ndarray) -> float:
-    """Mean Squared Error para regressão"""
-    return jnp.mean((pred - real) ** 2)
+    Parâmetros
+    ----------
+    entrada_linear : jnp.ndarray
+        Array de ativações lineares (pré-ativação).
 
-# ------------------------------------------------------------
-#  Propagação para trás (backward propagation)
-# ------------------------------------------------------------
-def propagacao_retro(
-    params: dict[str, jnp.ndarray],
-    X: jnp.ndarray,
-    Y: jnp.ndarray,
+    Retorna
+    -------
+    jnp.ndarray
+        Array com sigmóide aplicada elemento a elemento.
+    """
+    return 1 / (1 + jnp.exp(-entrada_linear))
+
+
+def sigmoid_derivada(
+    gradiente_saida: jnp.ndarray, entrada_linear: jnp.ndarray
+) -> jnp.ndarray:
+    """
+    Calcula o gradiente da função sigmóide.
+
+    Parâmetros
+    ----------
+    gradiente_saida : jnp.ndarray
+        Gradiente do custo em relação à saída da sigmóide.
+    entrada_linear : jnp.ndarray
+        Valor da entrada linear (antes da sigmóide).
+
+    Retorna
+    -------
+    jnp.ndarray
+        Gradiente do custo em relação à entrada linear.
+    """
+    saida_sigmoid = sigmoid(entrada_linear)
+    return gradiente_saida * saida_sigmoid * (1 - saida_sigmoid)
+
+
+def softmax(entrada_linear: jnp.ndarray) -> jnp.ndarray:
+    """
+    Aplica softmax por coluna (cada amostra).
+
+    Parâmetros
+    ----------
+    entrada_linear : jnp.ndarray
+        Array de ativações lineares (dim: classes, n_amostras).
+
+    Retorna
+    -------
+    jnp.ndarray
+        Distribuição de probabilidade para cada amostra (coluna).
+    """
+    exp_shift = jnp.exp(entrada_linear - jnp.max(entrada_linear, axis=0, keepdims=True))
+    return exp_shift / jnp.sum(exp_shift, axis=0, keepdims=True)
+
+
+def softmax_derivada(
+    probabilidades_preditas: jnp.ndarray, codificacao_one_hot: jnp.ndarray
+) -> jnp.ndarray:
+    """
+    Calcula o gradiente do erro categorial cruzado para softmax (saída).
+
+    Parâmetros
+    ----------
+    probabilidades_preditas : jnp.ndarray
+        Saídas da softmax (probabilidades preditas).
+    codificacao_one_hot : jnp.ndarray
+        Rótulos em codificação one-hot.
+
+    Retorna
+    -------
+    jnp.ndarray
+        Gradiente da perda em relação à entrada linear da camada de saída.
+    """
+    return probabilidades_preditas - codificacao_one_hot
+
+
+def linear(entrada_linear: jnp.ndarray) -> jnp.ndarray:
+    """
+    Aplica a função de ativação linear (identidade).
+
+    Esta função é utilizada principalmente em problemas de regressão,
+    onde não se deseja transformar a saída da rede, apenas propagá-la
+    diretamente como predição contínua.
+
+    Parâmetros
+    ----------
+    entrada_linear : jnp.ndarray
+        Vetor ou matriz com os valores de entrada da camada (pré-ativação).
+
+    Retorna
+    -------
+    jnp.ndarray
+        Mesmo array de entrada, sem alterações.
+    """
+    return entrada_linear
+
+
+def linear_derivada(
+    gradiente_saida: jnp.ndarray, entrada_linear: jnp.ndarray
+) -> jnp.ndarray:
+    """
+    Calcula o gradiente da função de ativação linear (identidade).
+
+    Como a função linear é definida por f(x) = x, sua derivada é 1.
+    Logo, o gradiente em relação à entrada linear é simplesmente igual
+    ao gradiente da camada posterior.
+
+    Parâmetros
+    ----------
+    gradiente_saida : jnp.ndarray
+        Gradiente do erro em relação à saída da função de ativação.
+    entrada_linear : jnp.ndarray
+        Valor da entrada linear (antes da ativação); não é utilizado
+        no cálculo, mas incluído por compatibilidade.
+
+    Retorna
+    -------
+    jnp.ndarray
+        Gradiente do erro em relação à entrada da função de ativação.
+    """
+    return gradiente_saida
+
+#forward-propagation
+def propagacao_ante(
+    matriz_entrada: jnp.ndarray,
+    parametros_rede: dict[str, jnp.ndarray],
     *,
     nome_ativacao_oculta: str = "relu",
     nome_ativacao_saida: str = "sigmoid",
-) -> tuple[dict[str, jnp.ndarray], jnp.ndarray]:
+) -> tuple[jnp.ndarray, dict[str, jnp.ndarray]]:
     """
-    Calcula gradientes dos parâmetros usando backpropagation.
+    Executa a passagem para frente na rede, armazenando intermediários.
 
-    Parâmetros:
-    - params: pesos e vieses.
-    - X: entrada da rede.
-    - Y: rótulos verdadeiros (one-hot ou 0/1).
+    Parâmetros
+    ----------
+    matriz_entrada : jnp.ndarray
+        Dados de entrada (n_features, n_amostras).
+    parametros_rede : dict[str, jnp.ndarray]
+        Dicionário com todos os pesos/viéses da rede.
+    nome_ativacao_oculta : {'relu', 'sigmoid', 'tanh'}
+        Função de ativação das camadas ocultas.
+    nome_ativacao_saida : {'sigmoid', 'softmax', 'linear'}
+        Função de ativação da camada de saída.
 
-    Retorno:
-    - grads: dicionário com dW e db para cada camada.
-    - AL: ativação final (predições antes de threshold ou argmax).
+    Retorna
+    -------
+    matriz_predicoes : jnp.ndarray
+        Saída final da rede (probabilidades, logits ou valores contínuos).
+    cache_propagacao : dict[str, jnp.ndarray]
+        Intermediários (A0, Z1, A1, ...).
     """
-    A = X
-    As = [A]  # lista para armazenar ativações de cada camada
-    Zs = []   # lista para armazenar valores Z de cada camada
-    num_camadas = len(params) // 2
-    # Feed-forward armazenando Z e A
-    for c in range(1, num_camadas):
-        Z = params[f"W{c}"] @ A + params[f"b{c}"]
-        Zs.append(Z)
-        A = _ativacoes[nome_ativacao_oculta](Z)
-        As.append(A)
-    # Última camada
-    ZL = params[f"W{num_camadas}"] @ A + params[f"b{num_camadas}"]
-    Zs.append(ZL)
-    AL = _ativacoes[nome_ativacao_saida](ZL)
-    As.append(AL)
+    cache_propagacao: dict[str, jnp.ndarray] = {"A0": matriz_entrada}
+    ativacoes = matriz_entrada
+    numero_camadas = len(parametros_rede) // 2
 
-    grads: dict[str, jnp.ndarray] = {}
-    m = Y.shape[1]  # número de amostras
-    # Gradiente da camada de saída
-    dZ = AL - Y
-    grads[f"dW{num_camadas}"] = (dZ @ As[-2].T) / m
-    grads[f"db{num_camadas}"] = jnp.sum(dZ, axis=1, keepdims=True) / m
-    dA_prev = params[f"W{num_camadas}"].T @ dZ
-    # Retropropaga pelas camadas ocultas
-    for c in range(num_camadas - 1, 0, -1):
-        dZ = _derivadas[nome_ativacao_oculta](dA_prev, Zs[c - 1])
-        grads[f"dW{c}"] = (dZ @ As[c - 1].T) / m
-        grads[f"db{c}"] = jnp.sum(dZ, axis=1, keepdims=True) / m
-        if c > 1:
-            dA_prev = params[f"W{c}"].T @ dZ
+    mapa_ativacao: dict[str, Callable[[jnp.ndarray], jnp.ndarray]] = {
+        "relu": relu,
+        "sigmoid": sigmoid,
+        "softmax": softmax,
+        "linear": linear,
+    }
 
-    return grads, AL
+    for indice_camada in range(1, numero_camadas):
+        entrada_linear = (
+            parametros_rede[f"W{indice_camada}"] @ ativacoes
+            + parametros_rede[f"b{indice_camada}"]
+        )
+        ativacoes = mapa_ativacao[nome_ativacao_oculta](entrada_linear)
+        cache_propagacao[f"Z{indice_camada}"] = entrada_linear
+        cache_propagacao[f"A{indice_camada}"] = ativacoes
 
-# ------------------------------------------------------------
-#  Atualização de parâmetros (gradiente descendente)
-# ------------------------------------------------------------
+    entrada_linear_saida = (
+        parametros_rede[f"W{numero_camadas}"] @ ativacoes
+        + parametros_rede[f"b{numero_camadas}"]
+    )
+    predicoes = mapa_ativacao[nome_ativacao_saida](entrada_linear_saida)
+    cache_propagacao[f"Z{numero_camadas}"] = entrada_linear_saida
+    cache_propagacao[f"A{numero_camadas}"] = predicoes
+    return predicoes, cache_propagacao
+
+
+def erro_binario_cruzado(
+    probabilidades_preditas: jnp.ndarray, rotulos_reais: jnp.ndarray
+) -> float:
+    """
+    Calcula o erro binário cruzado para classificação binária.
+
+    Parâmetros
+    ----------
+    probabilidades_preditas : jnp.ndarray
+        Saída da rede após sigmóide (dim: 1, n_amostras).
+    rotulos_reais : jnp.ndarray
+        Rótulos reais (dim: 1, n_amostras).
+
+    Retorna
+    -------
+    float
+        Valor escalar do erro médio.
+    """
+    eps = 1e-12
+    return float(
+        jnp.mean(
+            -(
+                rotulos_reais * jnp.log(probabilidades_preditas + eps)
+                + (1 - rotulos_reais) * jnp.log(1 - probabilidades_preditas + eps)
+            )
+        )
+    )
+
+
+def erro_categorial_cruzado(
+    probabilidades_preditas: jnp.ndarray, rotulos_one_hot: jnp.ndarray
+) -> float:
+    """
+    Calcula o erro categorial cruzado para classificação multiclasse.
+
+    Parâmetros
+    ----------
+    probabilidades_preditas : jnp.ndarray
+        Saídas da rede após softmax (classes, n_amostras).
+    rotulos_one_hot : jnp.ndarray
+        Rótulos reais (codificação one-hot).
+
+    Retorna
+    -------
+    float
+        Valor escalar do erro médio.
+    """
+    eps = 1e-12
+    return float(
+        -jnp.sum(rotulos_one_hot * jnp.log(probabilidades_preditas + eps))
+        / rotulos_one_hot.shape[1]
+    )
+
+
+def erro_mse(predicoes: jnp.ndarray, rotulos_reais: jnp.ndarray) -> float:
+    """
+    Calcula o erro quadrático médio (Mean Squared Error) para tarefas de regressão.
+
+    Parâmetros
+    ----------
+    predicoes : jnp.ndarray
+        Valores preditos pelo modelo (dim: 1, n_amostras ou similar).
+    rotulos_reais : jnp.ndarray
+        Valores reais esperados (dim: 1, n_amostras ou similar).
+
+    Retorna
+    -------
+    float
+        Valor escalar do erro quadrático médio.
+    """
+    return float(jnp.mean((predicoes - rotulos_reais) ** 2))
+
+# back-propagation
+def propagacao_retro(
+    parametros_rede: dict[str, jnp.ndarray],
+    cache_propagacao: dict[str, jnp.ndarray],
+    rotulos_reais: jnp.ndarray,
+    *,
+    nome_ativacao_oculta: str = "relu",
+) -> dict[str, jnp.ndarray]:
+    """
+    Calcula o gradiente do erro em relação a cada parâmetro, unificando
+    dZ = A - Y para saída (válido tanto p/ sigmoid quanto softmax).
+
+    Parâmetros
+    ----------
+    parametros_rede : dict[str, jnp.ndarray]
+        Pesos e viéses da rede.
+    cache_propagacao : dict[str, jnp.ndarray]
+        Intermediários da forward pass (Z1, A1, ..., ZL, AL).
+    rotulos_reais : jnp.ndarray
+        Rótulos verdadeiros (binário 1 x m ou one-hot n_classes x m).
+    nome_ativacao_oculta : {'relu', 'sigmoid'}, opcional
+        Ativação usada nas camadas ocultas.
+
+    Retorna
+    -------
+    dict[str, jnp.ndarray]
+        Gradientes dW1…dWL, db1…dbL normalizados por m.
+    """
+    gradientes_parametros: dict[str, jnp.ndarray] = {}
+    numero_camadas = len(parametros_rede) // 2
+    m = rotulos_reais.shape[1]
+
+    A_saida = cache_propagacao[f"A{numero_camadas}"]
+    dZ = A_saida - rotulos_reais
+    gradientes_parametros[f"dW{numero_camadas}"] = (
+        dZ @ cache_propagacao[f"A{numero_camadas - 1}"].T
+    ) / m
+    gradientes_parametros[f"db{numero_camadas}"] = (
+        jnp.sum(dZ, axis=1, keepdims=True) / m
+    )
+    dA_prev = parametros_rede[f"W{numero_camadas}"].T @ dZ
+
+    mapa_derivadas = {
+        "relu": relu_derivada,
+        "sigmoid": sigmoid_derivada,
+        "linear": linear_derivada,
+    }
+    for camada in range(numero_camadas - 1, 0, -1):
+        Zc = cache_propagacao[f"Z{camada}"]
+        dZ = mapa_derivadas[nome_ativacao_oculta](dA_prev, Zc)
+        gradientes_parametros[f"dW{camada}"] = (
+            dZ @ cache_propagacao[f"A{camada - 1}"].T
+        ) / m
+        gradientes_parametros[f"db{camada}"] = jnp.sum(dZ, axis=1, keepdims=True) / m
+        if camada > 1:
+            dA_prev = parametros_rede[f"W{camada}"].T @ dZ
+
+    return gradientes_parametros
+
+
 def atualizar_parametros(
-    params: dict[str, jnp.ndarray],
-    grads: dict[str, jnp.ndarray],
+    parametros_rede: dict[str, jnp.ndarray],
+    gradientes_parametros: dict[str, jnp.ndarray],
     taxa_aprendizado: float,
 ) -> dict[str, jnp.ndarray]:
     """
-    Ajusta pesos e vieses subtraindo gradientes multiplicados pela taxa de aprendizado.
+    Retorna um novo dicionário de pesos e vieses da rede, após atualização via gradiente
+    descendente.
 
-    Parâmetros:
-    - params: valores atuais de W e b.
-    - grads: gradientes dW e db calculados.
-    - taxa_aprendizado: passo do gradiente (0.01, 0.001, etc.).
+    Parâmetros
+    ----------
+    parametros_rede : dict[str, jnp.ndarray]
+        Parâmetros atuais da rede.
+    gradientes_parametros : dict[str, jnp.ndarray]
+        Gradientes de cada parâmetro.
+    taxa_aprendizado : float
+        Passo do gradiente descendente.
 
-    Retorno:
-    - novos: novo dicionário de parâmetros atualizados.
+    Retorna
+    -------
+    dict[str, jnp.ndarray]
+        Novo dicionário de parâmetros após atualização.
     """
-    novos: dict[str, jnp.ndarray] = {}
-    num_camadas = len(params) // 2
-    for c in range(1, num_camadas + 1):
-        novos[f"W{c}"] = params[f"W{c}"] - taxa_aprendizado * grads[f"dW{c}"]
-        novos[f"b{c}"] = params[f"b{c}"] - taxa_aprendizado * grads[f"db{c}"]
-    return novos
+    novo_parametros: dict[str, Array] = {}
+    for indice_camada in range(1, len(parametros_rede) // 2 + 1):
+        novo_parametros[f"W{indice_camada}"] = (
+            parametros_rede[f"W{indice_camada}"]
+            - taxa_aprendizado * gradientes_parametros[f"dW{indice_camada}"]
+        )
+        novo_parametros[f"b{indice_camada}"] = (
+            parametros_rede[f"b{indice_camada}"]
+            - taxa_aprendizado * gradientes_parametros[f"db{indice_camada}"]
+        )
+    return novo_parametros
 
-# ------------------------------------------------------------
-#  Loop de treinamento (training)
-# ------------------------------------------------------------
+
 def treinar_rede(
     matriz_entrada: jnp.ndarray,
     matriz_rotulos: jnp.ndarray,
@@ -287,91 +508,124 @@ def treinar_rede(
     nome_funcao_erro: str = "erro_binario_cruzado",
     taxa_aprendizado: float = 0.01,
     numero_epocas: int = 1000,
+    tamanho_lote: int = 32,
     semente: int = 42,
     verbose: bool = True,
 ) -> dict[str, jnp.ndarray]:
     """
-    Treina a rede completa, exibindo a cada 10% de progresso o valor do erro.
+    Treina a rede neural artificial usando gradiente descendente e mini-batch.
 
-    Parâmetros:
-    - matriz_entrada: shape (n_entrada, m) com features normalizadas.
-    - matriz_rotulos: shape (n_saida, m) com rótulos (one-hot ou 0/1).
-    - dimensoes_camadas: lista de inteiros definindo tamanho das camadas.
-    - nome_funcao_erro: escolha entre 'erro_binario_cruzado', 'erro_categorial_cruzado', 'erro_mse'.
-    - taxa_aprendizado: passo do gradiente.
-    - numero_epocas: quantas vezes percorrer todo o dataset.
-    - verbose: se True mostra progresso a cada 10%.
+    Parâmetros
+    ----------
+    matriz_entrada : jnp.ndarray
+        Dados de entrada, dimensão (n_features, n_amostras).
+    matriz_rotulos : jnp.ndarray
+        Rótulos, dimensão (n_classes, n_amostras) ou (1, n_amostras) para binário/regressão.
+    dimensoes_camadas : Sequence[int]
+        Arquitetura da rede incluindo entrada e saída.
+    nome_ativacao_oculta : {'relu', 'sigmoid', 'tanh'}, opcional
+        Função de ativação das camadas ocultas.
+    nome_ativacao_saida : {'sigmoid', 'softmax', 'linear'}, opcional
+        Função de ativação da saída.
+    nome_funcao_erro : {'erro_binario_cruzado', 'erro_categorial_cruzado', 'erro_mse'}, opcional
+        Nome da função de erro.
+    taxa_aprendizado : float, opcional
+        Taxa de atualização do gradiente.
+    numero_epocas : int, opcional
+        Número de épocas de treinamento.
+    tamanho_lote : int, opcional
+        Tamanho do mini-batch.
+    semente : int, opcional
+        Semente para reprodutibilidade.
+    verbose : bool, opcional
+        Se True, imprime progresso.
 
-    Retorno:
-    - params finais treinados.
+    Retorna
+    -------
+    parametros_rede : dict[str, jnp.ndarray]
+        Parâmetros aprendidos ao final do treinamento.
     """
-    # Inicializa parâmetros aleatórios
-    chave = definir_semente(semente)
-    params, _ = inicializar_parametros_rede(
+    chave_aleatoria = definir_semente(semente)
+    parametros_rede, chave_aleatoria = inicializar_parametros_rede(
         dimensoes_camadas,
-        chave_aleatoria=chave,
+        chave_aleatoria=chave_aleatoria,
         nome_ativacao_oculta=nome_ativacao_oculta,
     )
 
-    # Mapeia nomes de erro para funções
-    erros: dict[str, Callable[[jnp.ndarray, jnp.ndarray], float]] = {
+    numero_amostras = matriz_entrada.shape[1]
+    historico_erros: list[float] = []
+
+    funcoes_erro: dict[str, Callable[[jnp.ndarray, jnp.ndarray], float]] = {
         "erro_binario_cruzado": erro_binario_cruzado,
         "erro_categorial_cruzado": erro_categorial_cruzado,
         "erro_mse": erro_mse,
     }
-    err_fn = erros[nome_funcao_erro]
+    calcular_erro = funcoes_erro[nome_funcao_erro]
 
-    # Loop principal de treinamento
-    for ep in range(numero_epocas):
-        grads, pred = propagacao_retro(
-            params,
-            matriz_entrada,
-            matriz_rotulos,
-            nome_ativacao_oculta=nome_ativacao_oculta,
-            nome_ativacao_saida=nome_ativacao_saida,
-        )
-        # Atualiza parâmetros
-        params = atualizar_parametros(params, grads, taxa_aprendizado)
-        # Mostra erro periodicamente
-        if verbose and (ep + 1) % max(1, numero_epocas // 10) == 0:
-            loss = err_fn(pred, matriz_rotulos)
-            print(f"Época {ep + 1:>4}/{numero_epocas} – erro: {loss:.6f}")
-    return params
+    for epoca in range(1, numero_epocas + 1):
+        chave_aleatoria, chave_sub = jax.random.split(chave_aleatoria)
+        indices_embaralhados = jax.random.permutation(chave_sub, numero_amostras)
+        for inicio in range(0, numero_amostras, tamanho_lote):
+            indices_lote = indices_embaralhados[inicio : inicio + tamanho_lote]
+            entradas_lote = matriz_entrada[:, indices_lote]
+            rotulos_lote = matriz_rotulos[:, indices_lote]
 
-# ------------------------------------------------------------
-#  Função de previsão (inference)
-# ------------------------------------------------------------
+            predicoes_lote, cache_propagacao = propagacao_ante(
+                entradas_lote,
+                parametros_rede,
+                nome_ativacao_oculta=nome_ativacao_oculta,
+                nome_ativacao_saida=nome_ativacao_saida,
+            )
+            erro_lote = calcular_erro(predicoes_lote, rotulos_lote)
+            gradientes_parametros = propagacao_retro(
+                parametros_rede,
+                cache_propagacao,
+                rotulos_lote,
+                nome_ativacao_oculta=nome_ativacao_oculta,
+            )
+            parametros_rede = atualizar_parametros(
+                parametros_rede, gradientes_parametros, taxa_aprendizado
+            )
+        historico_erros.append(erro_lote)
+        if verbose and epoca % max(1, numero_epocas // 10) == 0:
+            print(f"Época {epoca:>4}/{numero_epocas} – erro: {erro_lote:.6f}")
+    return parametros_rede
+
 def prever(
     matriz_entrada: jnp.ndarray,
-    params: dict[str, jnp.ndarray],
+    parametros_rede: dict[str, jnp.ndarray],
     *,
     nome_ativacao_oculta: str = "relu",
     nome_ativacao_saida: str = "sigmoid",
 ) -> jnp.ndarray:
     """
-    Realiza inferência com os parâmetros treinados.
+    Realiza predição dos rótulos utilizando os parâmetros aprendidos.
 
-    Parâmetros:
-    - matriz_entrada: dados a serem avaliados.
-    - params: pesos e vieses treinados.
+    Parâmetros
+    ----------
+    matriz_entrada : jnp.ndarray
+        Dados de entrada (n_features, n_amostras).
+    parametros_rede : dict[str, jnp.ndarray]
+        Parâmetros aprendidos da rede.
+    nome_ativacao_oculta : {'relu', 'sigmoid', 'tanh'}, opcional
+        Função de ativação das camadas ocultas.
+    nome_ativacao_saida : {'sigmoid', 'softmax', 'linear'}, opcional
+        Função de ativação da camada de saída.
 
-    Retorno:
-    - Para saída sigmoid: 0 ou 1 (threshold 0.5).
-    - Para saída linear: valor contínuo.
-    - Para multi-classe (softmax): índice da classe mais provável.
+    Retorna
+    -------
+    jnp.ndarray
+        Rótulos preditos (0/1, índice da classe, ou valores contínuos).
     """
-    # Calcula ativação final
-    pred = propagacao_ante(
+    probabilidades_preditas, _ = propagacao_ante(
         matriz_entrada,
-        params,
+        parametros_rede,
         nome_ativacao_oculta=nome_ativacao_oculta,
         nome_ativacao_saida=nome_ativacao_saida,
     )
-    # Converte sigmoid para 0/1
     if nome_ativacao_saida == "sigmoid":
-        return (pred >= 0.5).astype(int)
-    # Para regressão, retorna valor bruto
-    if nome_ativacao_saida == "linear":
-        return pred
-    # Para softmax, retorna classe com maior probabilidade
-    return jnp.argmax(pred, axis=0)
+        return (probabilidades_preditas >= 0.5).astype(int)
+    elif nome_ativacao_saida == "linear":
+        return probabilidades_preditas
+    else:
+        return jnp.argmax(probabilidades_preditas, axis=0)
