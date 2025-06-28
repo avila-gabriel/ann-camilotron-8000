@@ -6,9 +6,17 @@ authors = [
   { name = "Carlos Botelho" },
   { name = "Juan Lopes" }
 ]
-description = "Add your description here"
+keywords = ["jax", "artificial neural network", "kaggle", "diy", "educational"]
+description = "Uma rede neural artificial simples, vetorizada com JAX e implementada com backpropagação manual"
 readme = "README.md"
 requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Education",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
 dependencies = [
     "jax>=0.6.1",
     "matplotlib>=3.10.3",
@@ -16,6 +24,10 @@ dependencies = [
     "pandas>=2.3.0",
     "scikit-learn>=1.7.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/avila-gabriel/ann-camilotron-8000"
+Documentation = "https://avila-gabriel.github.io/ann-camilotron-8000/"
 
 [tool.pyrefly]
 project_includes = ["src"]
@@ -38,9 +50,6 @@ dev = [
     "pytest>=8.4.0",
     "ruff>=0.11.11",
 ]
-
-[project.urls]
-Homepage = "https://github.com/avila-gabriel/ann-camilotron-8000"
 
 [build-system]
 requires = ["setuptools", "wheel"]

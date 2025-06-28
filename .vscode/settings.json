@@ -16,12 +16,13 @@
     "**/.gitignore": true,
     "**/.python-version": true,
     "**/uv.lock": true,
-    "**/pyproject.toml": false,
+    "**/pyproject.toml": true,
     "**/README.md": false,
     "**/.pytest_cache": true,
     "**/__pycache__": true,
-    "**/.egg-info": true,
+    "**/ann_camilotron_8000.egg-info": true,
     "**/site": true,
+    "**/dist": true,
   },
   "explorer.excludeGitIgnore": false
 }
