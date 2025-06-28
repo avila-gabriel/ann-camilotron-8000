@@ -1,0 +1,716 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../reference/">
+      
+      
+        <link rel="next" href="../real_state/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Binary Classification of Term Deposit Subscription - ann-camilotron-8000</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#binary-classification-of-term-deposit-subscription" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ann-camilotron-8000" class="md-header__button md-logo" aria-label="ann-camilotron-8000" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ann-camilotron-8000
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Binary Classification of Term Deposit Subscription
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ann-camilotron-8000" class="md-nav__button md-logo" aria-label="ann-camilotron-8000" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ann-camilotron-8000
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Exemplos
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Exemplos
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Binary Classification of Term Deposit Subscription
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Binary Classification of Term Deposit Subscription
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#load-and-prepare-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load and prepare data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocessing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preprocessing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#train-test-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      Train-test split
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#neural-network-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      Neural network training
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance evaluation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confusion-matrix-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confusion matrix visualization
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../real_state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Regressão Imobiliária
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ambiente de Desenvolvimento
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#load-and-prepare-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load and prepare data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocessing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preprocessing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#train-test-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      Train-test split
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#neural-network-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      Neural network training
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance evaluation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confusion-matrix-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confusion matrix visualization
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="binary-classification-of-term-deposit-subscription">Binary Classification of Term Deposit Subscription<a class="headerlink" href="#binary-classification-of-term-deposit-subscription" title="Permanent link">&para;</a></h1>
+<p>This notebook implements a binary classification pipeline using a neural network built with JAX. The model predicts whether a customer will subscribe to a term deposit, based on features from the Bank Marketing dataset.</p>
+<p>Dataset source: <a href="https://www.kaggle.com/datasets/janiobachmann/bank-marketing-dataset/data">Bank Marketing Dataset on Kaggle</a></p>
+<pre><code class="language-python">import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import train_test_split
+
+import ann
+</code></pre>
+<h2 id="load-and-prepare-data">Load and prepare data<a class="headerlink" href="#load-and-prepare-data" title="Permanent link">&para;</a></h2>
+<p>Target variable is <code>deposit</code>, which is mapped to 1 for 'yes' and 0 for 'no'.</p>
+<pre><code class="language-python">df = pd.read_csv(&quot;datasets/bank.csv&quot;)
+df[&quot;y&quot;] = df[&quot;deposit&quot;].map({&quot;yes&quot;: 1, &quot;no&quot;: 0})
+df = df.drop(columns=[&quot;deposit&quot;])
+</code></pre>
+<h2 id="preprocessing">Preprocessing<a class="headerlink" href="#preprocessing" title="Permanent link">&para;</a></h2>
+<ul>
+<li>One-hot encoding for categorical columns.</li>
+<li>Min-max normalization for selected numeric columns.</li>
+<li>Concatenation of both feature types into the input matrix.</li>
+</ul>
+<pre><code class="language-python">CAT_COLS = [
+    &quot;job&quot;,
+    &quot;marital&quot;,
+    &quot;education&quot;,
+    &quot;default&quot;,
+    &quot;housing&quot;,
+    &quot;loan&quot;,
+    &quot;contact&quot;,
+    &quot;month&quot;,
+    &quot;day&quot;,
+    &quot;poutcome&quot;,
+]
+NUM_COLS = [&quot;age&quot;, &quot;balance&quot;, &quot;campaign&quot;]
+
+df_cat = pd.get_dummies(df[CAT_COLS], drop_first=True).astype(float)
+
+X_num = df[NUM_COLS].astype(float).values
+X_min = X_num.min(axis=0, keepdims=True)
+X_max = X_num.max(axis=0, keepdims=True)
+X_num_norm = (X_num - X_min) / (X_max - X_min + 1e-8)
+df_num = pd.DataFrame(X_num_norm, columns=NUM_COLS, index=df.index)
+
+X = pd.concat([df_num, df_cat], axis=1).astype(float).values
+y = df[&quot;y&quot;].values.reshape(1, -1)
+</code></pre>
+<h2 id="train-test-split">Train-test split<a class="headerlink" href="#train-test-split" title="Permanent link">&para;</a></h2>
+<p>85% of the data is used for training and 15% for testing, with stratification based on the target label.</p>
+<pre><code class="language-python">X_train, X_test, y_train, y_test = train_test_split(
+    X, y.T, test_size=0.15, random_state=42, stratify=y.T
+)
+
+X_train = jnp.array(X_train.T)
+X_test = jnp.array(X_test.T)
+y_train = jnp.array(y_train.T)
+y_test = jnp.array(y_test.T)
+</code></pre>
+<h2 id="neural-network-training">Neural network training<a class="headerlink" href="#neural-network-training" title="Permanent link">&para;</a></h2>
+<p>Architecture: Input → 64 → 16 → 1. Output layer uses sigmoid activation for binary classification.</p>
+<pre><code class="language-python">params = ann.treinar_rede(
+    matriz_entrada=X_train,
+    matriz_rotulos=y_train,
+    dimensoes_camadas=(X_train.shape[0], 64, 16, 1),
+    nome_ativacao_oculta=&quot;relu&quot;,
+    nome_ativacao_saida=&quot;sigmoid&quot;,
+    nome_funcao_erro=&quot;erro_binario_cruzado&quot;,
+    taxa_aprendizado=0.01,
+    numero_epocas=1000,
+    tamanho_lote=128,
+    dropout_prob=0.0,
+    semente=42,
+    verbose=True,
+)
+</code></pre>
+<h2 id="performance-evaluation">Performance evaluation<a class="headerlink" href="#performance-evaluation" title="Permanent link">&para;</a></h2>
+<p>Includes accuracy metrics and confusion matrix for both training and test data.</p>
+<pre><code class="language-python">y_pred_train = ann.prever(
+    X_train, params, nome_ativacao_oculta=&quot;relu&quot;, nome_ativacao_saida=&quot;sigmoid&quot;
+)
+y_pred_test = ann.prever(
+    X_test, params, nome_ativacao_oculta=&quot;relu&quot;, nome_ativacao_saida=&quot;sigmoid&quot;
+)
+
+acc_train = accuracy_score(np.array(y_train).flatten(), np.array(y_pred_train).flatten())
+acc_test = accuracy_score(np.array(y_test).flatten(), np.array(y_pred_test).flatten())
+
+tn, fp, fn, tp = confusion_matrix(np.array(y_test).flatten(), np.array(y_pred_test).flatten()).ravel()
+
+print(f&quot;Training accuracy: {acc_train:.4f}&quot;)
+print(f&quot;Test accuracy:     {acc_test:.4f}&quot;)
+print(f&quot;False Positives: {fp}, False Negatives: {fn}&quot;)
+</code></pre>
+<h2 id="confusion-matrix-visualization">Confusion matrix visualization<a class="headerlink" href="#confusion-matrix-visualization" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">cm = np.array([[tn, fp], [fn, tp]])
+plt.figure(figsize=(4, 4))
+plt.imshow(cm, cmap=&quot;Blues&quot;)
+for i in range(2):
+    for j in range(2):
+        plt.text(
+            j, i, cm[i, j],
+            ha=&quot;center&quot;, va=&quot;center&quot;,
+            color=&quot;white&quot; if cm[i, j] &gt; cm.max() / 2 else &quot;black&quot;,
+            fontsize=12
+        )
+plt.xticks([0, 1], [&quot;Negative&quot;, &quot;Positive&quot;])
+plt.yticks([0, 1], [&quot;Negative&quot;, &quot;Positive&quot;])
+plt.xlabel(&quot;Predicted&quot;)
+plt.ylabel(&quot;Actual&quot;)
+plt.title(&quot;Confusion Matrix - Test Set&quot;)
+plt.tight_layout()
+plt.show()
+</code></pre>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

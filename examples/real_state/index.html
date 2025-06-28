@@ -1,0 +1,788 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../bank/">
+      
+      
+        <link rel="next" href="../../dev/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Regressão Imobiliária - ann-camilotron-8000</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#regressao-imobiliaria" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ann-camilotron-8000" class="md-header__button md-logo" aria-label="ann-camilotron-8000" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ann-camilotron-8000
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Regressão Imobiliária
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ann-camilotron-8000" class="md-nav__button md-logo" aria-label="ann-camilotron-8000" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ann-camilotron-8000
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Exemplos
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Exemplos
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bank/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Binary Classification of Term Deposit Subscription
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Regressão Imobiliária
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Regressão Imobiliária
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#importacao-de-bibliotecas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Importação de bibliotecas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#carregamento-e-preparacao-dos-dados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carregamento e preparação dos dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-processamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pré-processamento
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#divisao-treino-teste" class="md-nav__link">
+    <span class="md-ellipsis">
+      Divisão treino-teste
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#treinamento-da-rede-neural" class="md-nav__link">
+    <span class="md-ellipsis">
+      Treinamento da rede neural
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#predicao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Predição
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#denormalizacao-dos-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Denormalização dos resultados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#avaliacao-de-desempenho" class="md-nav__link">
+    <span class="md-ellipsis">
+      Avaliação de desempenho
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualizacao-real-vs-predito" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualização: Real vs. Predito
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ambiente de Desenvolvimento
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#importacao-de-bibliotecas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Importação de bibliotecas
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#carregamento-e-preparacao-dos-dados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Carregamento e preparação dos dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-processamento" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pré-processamento
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#divisao-treino-teste" class="md-nav__link">
+    <span class="md-ellipsis">
+      Divisão treino-teste
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#treinamento-da-rede-neural" class="md-nav__link">
+    <span class="md-ellipsis">
+      Treinamento da rede neural
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#predicao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Predição
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#denormalizacao-dos-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Denormalização dos resultados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#avaliacao-de-desempenho" class="md-nav__link">
+    <span class="md-ellipsis">
+      Avaliação de desempenho
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualizacao-real-vs-predito" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualização: Real vs. Predito
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="regressao-imobiliaria">Regressão Imobiliária<a class="headerlink" href="#regressao-imobiliaria" title="Permanent link">&para;</a></h1>
+<p>Este notebook implementa um pipeline de regressão usando uma rede neural construída com JAX. O modelo prevê preços de imóveis com base em características do conjunto de dados de mercado imobiliário.</p>
+<p>Dataset source: <a href="https://www.kaggle.com/datasets/denkuznetz/housing-prices-regression/data">Housing Prices Regression Dataset on Kaggle</a></p>
+<h2 id="importacao-de-bibliotecas">Importação de bibliotecas<a class="headerlink" href="#importacao-de-bibliotecas" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>jax.numpy</code> para operações vetorizadas com JAX.</li>
+<li><code>matplotlib.pyplot</code> para visualizações.</li>
+<li><code>numpy</code> e <code>pandas</code> para manipulação de dados.</li>
+<li><code>r2_score</code> do scikit-learn para avaliar desempenho.</li>
+<li><code>train_test_split</code> para particionar dados.</li>
+<li><code>src.ann</code> para funções de rede neural.</li>
+</ul>
+<pre><code class="language-python">import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+
+import ann
+</code></pre>
+<h2 id="carregamento-e-preparacao-dos-dados">Carregamento e preparação dos dados<a class="headerlink" href="#carregamento-e-preparacao-dos-dados" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Lê o CSV do conjunto de dados.</li>
+<li>Separa as features (<code>X_df</code>) removendo <code>ID</code> e <code>Price</code>.</li>
+<li>Extrai o vetor de preços (<code>y</code>) e coloca em formato de matriz.</li>
+</ul>
+<pre><code class="language-python">df = pd.read_csv(&quot;datasets/real_estate_dataset.csv&quot;)
+
+X_df = df.drop(columns=[&quot;ID&quot;, &quot;Price&quot;])
+y = df[&quot;Price&quot;].values.reshape(1, -1)
+X = X_df.values.T
+</code></pre>
+<h2 id="pre-processamento">Pré-processamento<a class="headerlink" href="#pre-processamento" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Normalização min-max de cada feature de entrada.</li>
+<li>Normalização do alvo (preço) para faixa [0,1].</li>
+</ul>
+<pre><code class="language-python">X_min = X.min(axis=1, keepdims=True)
+X_max = X.max(axis=1, keepdims=True)
+X_norm = (X - X_min) / (X_max - X_min + 1e-8)
+y_min = y.min()
+y_max = y.max()
+y_norm = (y - y_min) / (y_max - y_min + 1e-8)
+</code></pre>
+<h2 id="divisao-treino-teste">Divisão treino-teste<a class="headerlink" href="#divisao-treino-teste" title="Permanent link">&para;</a></h2>
+<ul>
+<li>80% dos dados para treino e 20% para teste.</li>
+<li>Usa <code>train_test_split</code> com <code>random_state=1</code> para reprodutibilidade.</li>
+</ul>
+<pre><code class="language-python">X_train, X_test, y_train, y_test = train_test_split(
+    X_norm.T, y_norm.T, test_size=0.2, random_state=1
+)
+X_train = jnp.array(X_train.T)
+X_test = jnp.array(X_test.T)
+y_train = jnp.array(y_train.T)
+y_test = jnp.array(y_test.T)
+
+print(&quot;Shapes de treino:&quot;, X_train.shape, y_train.shape)
+</code></pre>
+<h2 id="treinamento-da-rede-neural">Treinamento da rede neural<a class="headerlink" href="#treinamento-da-rede-neural" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Arquitetura: Entrada → 10 neurônios ocultos → 1 saída.</li>
+<li>Ativação oculta: ReLU; saída: Linear.</li>
+<li>Função de erro: MSE.</li>
+<li>Taxa de aprendizado, número de épocas e tamanho do lote definidos.</li>
+</ul>
+<pre><code class="language-python">params = ann.treinar_rede(
+    matriz_entrada=X_train,
+    matriz_rotulos=y_train,
+    dimensoes_camadas=(
+        X_train.shape[0],
+        10,
+        1,
+    ),
+    nome_ativacao_oculta=&quot;relu&quot;,
+    nome_ativacao_saida=&quot;linear&quot;,
+    nome_funcao_erro=&quot;erro_mse&quot;,
+    taxa_aprendizado=0.05,
+    numero_epocas=2000,
+    tamanho_lote=16,
+    verbose=True,
+)
+</code></pre>
+<h2 id="predicao">Predição<a class="headerlink" href="#predicao" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Gera previsões normalizadas para treino e teste.</li>
+</ul>
+<pre><code class="language-python">y_pred_train = ann.prever(
+    X_train, params, nome_ativacao_oculta=&quot;relu&quot;, nome_ativacao_saida=&quot;linear&quot;
+)
+y_pred_test = ann.prever(
+    X_test, params, nome_ativacao_oculta=&quot;relu&quot;, nome_ativacao_saida=&quot;linear&quot;
+)
+</code></pre>
+<h2 id="denormalizacao-dos-resultados">Denormalização dos resultados<a class="headerlink" href="#denormalizacao-dos-resultados" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Converte as previsões normalizadas de volta para valores reais de preço.</li>
+</ul>
+<pre><code class="language-python">y_pred_train_real = np.array(y_pred_train) * (y_max - y_min) + y_min
+y_train_real = np.array(y_train) * (y_max - y_min) + y_min
+y_pred_test_real = np.array(y_pred_test) * (y_max - y_min) + y_min
+y_test_real = np.array(y_test) * (y_max - y_min) + y_min
+</code></pre>
+<h2 id="avaliacao-de-desempenho">Avaliação de desempenho<a class="headerlink" href="#avaliacao-de-desempenho" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Calcula MSE e R² para teste usando <code>r2_score</code>.</li>
+</ul>
+<pre><code class="language-python">mse_test = np.mean((y_pred_test_real - y_test_real) ** 2)
+r2_test = r2_score(y_test_real.flatten(), y_pred_test_real.flatten())
+
+print(f&quot;MSE teste  (real): {mse_test:.2f}&quot;)
+print(f&quot;R² teste:          {r2_test:.4f}&quot;)
+</code></pre>
+<h2 id="visualizacao-real-vs-predito">Visualização: Real vs. Predito<a class="headerlink" href="#visualizacao-real-vs-predito" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Gráfico de dispersão comparando preços reais e previstos no conjunto de teste.</li>
+</ul>
+<pre><code class="language-python">plt.figure(figsize=(7, 6))
+plt.scatter(y_test_real.flatten(), y_pred_test_real.flatten(), alpha=0.7, edgecolor=&quot;k&quot;)
+plt.plot(
+    [y_test_real.min(), y_test_real.max()],
+    [y_test_real.min(), y_test_real.max()],
+    &quot;r--&quot;,
+    lw=2,
+)
+plt.xlabel(&quot;Preço real&quot;)
+plt.ylabel(&quot;Preço predito pela RNA&quot;)
+plt.title(&quot;Regressão Imobiliária: Real vs. Predito (teste)&quot;)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+</code></pre>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>
