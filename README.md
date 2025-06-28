@@ -1,3 +1,8 @@
+### Execução
+uv run -m examples.<case>
+EX:
+  uv run -m examples.bank 
+  uv run -m examples.real_state
 
 
 ### Regressão
