@@ -1,3 +1,8 @@
+### Integrantes
+ - Carlos Eduardo Amancio Botelho
+ - Gabriel Avila
+ - Ruan Luiz Molgero Lopes
+
 ### Execução
 uv run -m examples.<case>
 EX:
