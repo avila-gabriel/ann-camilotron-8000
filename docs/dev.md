@@ -12,8 +12,10 @@
 Install all project dependencies, including dev tools:
 
 ```bash
-uv sync --all-groups
+uv sync
 ```
+
+then activate the venv
 
 ## Adding a Library
 

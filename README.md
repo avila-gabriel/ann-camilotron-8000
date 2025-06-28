@@ -33,14 +33,14 @@ graph LR
 ```python
 import jax.numpy as jnp
 import numpy as np
-from src.lib import nn_functional as nn
+import ann
 
 # X: (n_features, n_amostras), Y: (1, n_amostras)
 X = jnp.array(...)  # entrada normalizada
 Y = jnp.array(...)  # saída contínua normalizada
 
 # Treinamento
-params = nn.treinar_rede(
+params = ann.treinar_rede(
     matriz_entrada=X,
     matriz_rotulos=Y,
     dimensoes_camadas=(X.shape[0], 16, 8, 1),
@@ -53,7 +53,7 @@ params = nn.treinar_rede(
 )
 
 # Predição
-Y_pred = nn.prever(
+Y_pred = ann.prever(
     X,
     params,
     nome_ativacao_oculta="relu",
@@ -93,14 +93,14 @@ graph LR
 ```python
 import jax.numpy as jnp
 import numpy as np
-from src.lib import nn_functional as nn
+import ann
 
 # X: (n_features, n_amostras), Y: (1, n_amostras)
 X = jnp.array(...)  # seus dados de entrada normalizados
 Y = jnp.array(...)  # rótulos binários (0 ou 1), shape (1, m)
 
 # Treinamento
-params = nn.treinar_rede(
+params = ann.treinar_rede(
     matriz_entrada=X,
     matriz_rotulos=Y,
     dimensoes_camadas=(X.shape[0], 64, 32, 1),
@@ -113,7 +113,7 @@ params = nn.treinar_rede(
 )
 
 # Predição
-Y_pred = nn.prever(
+Y_pred = ann.prever(
     X,
     params,
     nome_ativacao_oculta="relu",
@@ -158,7 +158,7 @@ graph LR
 ```python
 import jax.numpy as jnp
 import numpy as np
-from src.lib import nn_functional as nn
+import ann
 
 # Suponha que temos X e y:
 # X: (n_features, n_amostras)
@@ -169,13 +169,13 @@ y_int = np.array([...])         # rótulos inteiros, shape (n_amostras,)
 n_classes = len(np.unique(y_int))
 
 # Converte rótulos para one-hot (shape: n_classes x n_amostras)
-Y = nn.codificar_one_hot(y_int, numero_classes=n_classes)
+Y = ann.codificar_one_hot(y_int, numero_classes=n_classes)
 
 # Transpõe X se necessário para ficar (n_features, n_amostras)
 X = X if X.shape[0] < X.shape[1] else X.T
 
 # Treinamento
-params = nn.treinar_rede(
+params = ann.treinar_rede(
     matriz_entrada=X,
     matriz_rotulos=Y,
     dimensoes_camadas=(X.shape[0], 64, 32, n_classes),
@@ -188,7 +188,7 @@ params = nn.treinar_rede(
 )
 
 # Predição
-Y_pred = nn.prever(
+Y_pred = ann.prever(
     X,
     params,
     nome_ativacao_oculta="relu",

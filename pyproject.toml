@@ -1,7 +1,11 @@
 [project]
-name = "camilo"
-version = "0.1.0"
-authors = ["Gabriel Avila", "Carlos Botelho", "Juan Lopes"]
+name = "ann-camilotron-8000"
+version = "1.0"
+authors = [
+  { name = "Gabriel Avila" },
+  { name = "Carlos Botelho" },
+  { name = "Juan Lopes" }
+]
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -10,13 +14,11 @@ dependencies = [
     "matplotlib>=3.10.3",
     "numpy>=2.2.6",
     "pandas>=2.3.0",
-    "pytest>=8.4.0",
-    "ruff>=0.11.11",
     "scikit-learn>=1.7.0",
 ]
 
 [tool.pyrefly]
-project_includes = ["src/lib"]
+project_includes = ["src"]
 warn_unused_ignores = true
 warn_untyped_defs = true
 
@@ -25,4 +27,27 @@ line-length = 88
 extend-select = ["E"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src/lib"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "jupytext>=1.17.2",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.14",
+    "mkdocstrings[python]>=0.29.1",
+    "pytest>=8.4.0",
+    "ruff>=0.11.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/avila-gabriel/ann-camilotron-8000"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

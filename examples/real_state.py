@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
-import src.lib.nn_functional as nn
+import ann
 
 df = pd.read_csv("datasets/real_estate_dataset.csv")
 
@@ -30,7 +30,7 @@ y_test = jnp.array(y_test.T)
 
 print("Shapes de treino:", X_train.shape, y_train.shape)
 
-params = nn.treinar_rede(
+params = ann.treinar_rede(
     matriz_entrada=X_train,
     matriz_rotulos=y_train,
     dimensoes_camadas=(
@@ -43,13 +43,12 @@ params = nn.treinar_rede(
     nome_funcao_erro="erro_mse",
     taxa_aprendizado=0.05,
     numero_epocas=2000,
-
     verbose=True,
 )
-y_pred_train = nn.prever(
+y_pred_train = ann.prever(
     X_train, params, nome_ativacao_oculta="relu", nome_ativacao_saida="linear"
 )
-y_pred_test = nn.prever(
+y_pred_test = ann.prever(
     X_test, params, nome_ativacao_oculta="relu", nome_ativacao_saida="linear"
 )
 
@@ -63,7 +62,7 @@ mse_test = np.mean((y_pred_test_real - y_test_real) ** 2)
 
 # raiz quadrada para voltar à unidade “real”
 rmse_train = np.sqrt(mse_train)
-rmse_test  = np.sqrt(mse_test)
+rmse_test = np.sqrt(mse_test)
 
 r2_train = r2_score(y_train_real.flatten(), y_pred_train_real.flatten())
 r2_test = r2_score(y_test_real.flatten(), y_pred_test_real.flatten())

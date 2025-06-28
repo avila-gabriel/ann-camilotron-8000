@@ -18,12 +18,12 @@ def definir_semente(semente: int = 42) -> Array:
     """
     Gera chave de aleatoriedade JAX a partir de uma semente para reprodutibilidade.
 
-    Parâmetros
+    Parameters
     ----------
     semente : int, opcional
         Valor inteiro utilizado para inicialização do gerador de números aleatórios.
 
-    Retorna
+    Returns
     -------
     jax.random.PRNGKey
         Chave para geração de números aleatórios no JAX.
@@ -37,14 +37,14 @@ def codificar_one_hot(
     """
     Converte um vetor de rótulos inteiros para codificação one-hot.
 
-    Parâmetros
+    Parameters
     ----------
     rotulos_inteiros : jnp.ndarray
         Array 1D contendo os rótulos (valores inteiros).
     numero_classes : int
         Número total de classes possíveis.
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Matriz one-hot de forma (numero_classes, n_amostras).
@@ -72,7 +72,7 @@ def inicializar_parametros_rede(
     pequeno e positivo (0.01) quando se usa ReLU, para evitar “neurônios
     mortos” no início.
 
-    Parâmetros
+    Parameters
     ----------
     dimensoes_camadas : Sequence[int]
         Sequência contendo o número de unidades de cada camada,
@@ -83,10 +83,10 @@ def inicializar_parametros_rede(
         Especifica a função de ativação das camadas ocultas; define
         o método de inicialização de pesos. Padrão é 'relu'.
 
-    Retorna
+    Returns
     -------
     parametros_rede : dict[str, jnp.ndarray]
-        Dicionário com parâmetros aprendidos da rede:
+        Dicionário com Parameters aprendidos da rede:
         - W1, b1, W2, b2, … até WL, bL.
         Cada W{i} tem forma (dimensoes_camadas[i], dimensoes_camadas[i-1]),
         e cada b{i} tem forma (dimensoes_camadas[i], 1).
@@ -113,12 +113,12 @@ def relu(entrada_linear: jnp.ndarray) -> jnp.ndarray:
     """
     Aplica a função de ativação ReLU elemento a elemento.
 
-    Parâmetros
+    Parameters
     ----------
     entrada_linear : jnp.ndarray
         Array de ativações lineares (pré-ativação).
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Array com ReLU aplicada elemento a elemento.
@@ -132,14 +132,14 @@ def relu_derivada(
     """
     Calcula o gradiente da ReLU.
 
-    Parâmetros
+    Parameters
     ----------
     gradiente_saida : jnp.ndarray
         Gradiente do custo em relação à saída da ReLU.
     entrada_linear : jnp.ndarray
         Valor da entrada linear (antes da ReLU).
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Gradiente do custo em relação à entrada linear.
@@ -151,12 +151,12 @@ def sigmoid(entrada_linear: jnp.ndarray) -> jnp.ndarray:
     """
     Aplica a função sigmóide elemento a elemento.
 
-    Parâmetros
+    Parameters
     ----------
     entrada_linear : jnp.ndarray
         Array de ativações lineares (pré-ativação).
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Array com sigmóide aplicada elemento a elemento.
@@ -170,14 +170,14 @@ def sigmoid_derivada(
     """
     Calcula o gradiente da função sigmóide.
 
-    Parâmetros
+    Parameters
     ----------
     gradiente_saida : jnp.ndarray
         Gradiente do custo em relação à saída da sigmóide.
     entrada_linear : jnp.ndarray
         Valor da entrada linear (antes da sigmóide).
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Gradiente do custo em relação à entrada linear.
@@ -190,12 +190,12 @@ def softmax(entrada_linear: jnp.ndarray) -> jnp.ndarray:
     """
     Aplica softmax por coluna (cada amostra).
 
-    Parâmetros
+    Parameters
     ----------
     entrada_linear : jnp.ndarray
         Array de ativações lineares (dim: classes, n_amostras).
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Distribuição de probabilidade para cada amostra (coluna).
@@ -210,14 +210,14 @@ def softmax_derivada(
     """
     Calcula o gradiente do erro categorial cruzado para softmax (saída).
 
-    Parâmetros
+    Parameters
     ----------
     probabilidades_preditas : jnp.ndarray
         Saídas da softmax (probabilidades preditas).
     codificacao_one_hot : jnp.ndarray
         Rótulos em codificação one-hot.
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Gradiente da perda em relação à entrada linear da camada de saída.
@@ -233,12 +233,12 @@ def linear(entrada_linear: jnp.ndarray) -> jnp.ndarray:
     onde não se deseja transformar a saída da rede, apenas propagá-la
     diretamente como predição contínua.
 
-    Parâmetros
+    Parameters
     ----------
     entrada_linear : jnp.ndarray
         Vetor ou matriz com os valores de entrada da camada (pré-ativação).
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Mesmo array de entrada, sem alterações.
@@ -256,7 +256,7 @@ def linear_derivada(
     Logo, o gradiente em relação à entrada linear é simplesmente igual
     ao gradiente da camada posterior.
 
-    Parâmetros
+    Parameters
     ----------
     gradiente_saida : jnp.ndarray
         Gradiente do erro em relação à saída da função de ativação.
@@ -264,7 +264,7 @@ def linear_derivada(
         Valor da entrada linear (antes da ativação); não é utilizado
         no cálculo, mas incluído por compatibilidade.
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Gradiente do erro em relação à entrada da função de ativação.
@@ -282,7 +282,7 @@ def propagacao_ante(
     """
     Executa a passagem para frente na rede, armazenando intermediários.
 
-    Parâmetros
+    Parameters
     ----------
     matriz_entrada : jnp.ndarray
         Dados de entrada (n_features, n_amostras).
@@ -293,7 +293,7 @@ def propagacao_ante(
     nome_ativacao_saida : {'sigmoid', 'softmax', 'linear'}
         Função de ativação da camada de saída.
 
-    Retorna
+    Returns
     -------
     matriz_predicoes : jnp.ndarray
         Saída final da rede (probabilidades, logits ou valores contínuos).
@@ -336,14 +336,14 @@ def erro_binario_cruzado(
     """
     Calcula o erro binário cruzado para classificação binária.
 
-    Parâmetros
+    Parameters
     ----------
     probabilidades_preditas : jnp.ndarray
         Saída da rede após sigmóide (dim: 1, n_amostras).
     rotulos_reais : jnp.ndarray
         Rótulos reais (dim: 1, n_amostras).
 
-    Retorna
+    Returns
     -------
     float
         Valor escalar do erro médio.
@@ -365,14 +365,14 @@ def erro_categorial_cruzado(
     """
     Calcula o erro categorial cruzado para classificação multiclasse.
 
-    Parâmetros
+    Parameters
     ----------
     probabilidades_preditas : jnp.ndarray
         Saídas da rede após softmax (classes, n_amostras).
     rotulos_one_hot : jnp.ndarray
         Rótulos reais (codificação one-hot).
 
-    Retorna
+    Returns
     -------
     float
         Valor escalar do erro médio.
@@ -388,14 +388,14 @@ def erro_mse(predicoes: jnp.ndarray, rotulos_reais: jnp.ndarray) -> float:
     """
     Calcula o erro quadrático médio (Mean Squared Error) para tarefas de regressão.
 
-    Parâmetros
+    Parameters
     ----------
     predicoes : jnp.ndarray
         Valores preditos pelo modelo (dim: 1, n_amostras ou similar).
     rotulos_reais : jnp.ndarray
         Valores reais esperados (dim: 1, n_amostras ou similar).
 
-    Retorna
+    Returns
     -------
     float
         Valor escalar do erro quadrático médio.
@@ -414,7 +414,7 @@ def propagacao_retro(
     Calcula o gradiente do erro em relação a cada parâmetro, unificando
     dZ = A - Y para saída (válido tanto p/ sigmoid quanto softmax).
 
-    Parâmetros
+    Parameters
     ----------
     parametros_rede : dict[str, jnp.ndarray]
         Pesos e viéses da rede.
@@ -425,7 +425,7 @@ def propagacao_retro(
     nome_ativacao_oculta : {'relu', 'sigmoid'}, opcional
         Ativação usada nas camadas ocultas.
 
-    Retorna
+    Returns
     -------
     dict[str, jnp.ndarray]
         Gradientes dW1…dWL, db1…dbL normalizados por m.
@@ -468,22 +468,22 @@ def atualizar_parametros(
     taxa_aprendizado: float,
 ) -> dict[str, jnp.ndarray]:
     """
-    Retorna um novo dicionário de pesos e vieses da rede, após atualização via gradiente
+    Returns um novo dicionário de pesos e vieses da rede, após atualização via gradiente
     descendente.
 
-    Parâmetros
+    Parameters
     ----------
     parametros_rede : dict[str, jnp.ndarray]
-        Parâmetros atuais da rede.
+        Parameters atuais da rede.
     gradientes_parametros : dict[str, jnp.ndarray]
         Gradientes de cada parâmetro.
     taxa_aprendizado : float
         Passo do gradiente descendente.
 
-    Retorna
+    Returns
     -------
     dict[str, jnp.ndarray]
-        Novo dicionário de parâmetros após atualização.
+        Novo dicionário de Parameters após atualização.
     """
     novo_parametros: dict[str, Array] = {}
     for indice_camada in range(1, len(parametros_rede) // 2 + 1):
@@ -515,7 +515,7 @@ def treinar_rede(
     """
     Treina a rede neural artificial usando gradiente descendente e mini-batch.
 
-    Parâmetros
+    Parameters
     ----------
     matriz_entrada : jnp.ndarray
         Dados de entrada, dimensão (n_features, n_amostras).
@@ -540,10 +540,10 @@ def treinar_rede(
     verbose : bool, opcional
         Se True, imprime progresso.
 
-    Retorna
+    Returns
     -------
     parametros_rede : dict[str, jnp.ndarray]
-        Parâmetros aprendidos ao final do treinamento.
+        Parameters aprendidos ao final do treinamento.
     """
     chave_aleatoria = definir_semente(semente)
     parametros_rede, chave_aleatoria = inicializar_parametros_rede(
@@ -599,20 +599,20 @@ def prever(
     nome_ativacao_saida: str = "sigmoid",
 ) -> jnp.ndarray:
     """
-    Realiza predição dos rótulos utilizando os parâmetros aprendidos.
+    Realiza predição dos rótulos utilizando os Parameters aprendidos.
 
-    Parâmetros
+    Parameters
     ----------
     matriz_entrada : jnp.ndarray
         Dados de entrada (n_features, n_amostras).
     parametros_rede : dict[str, jnp.ndarray]
-        Parâmetros aprendidos da rede.
+        Parameters aprendidos da rede.
     nome_ativacao_oculta : {'relu', 'sigmoid', 'tanh'}, opcional
         Função de ativação das camadas ocultas.
     nome_ativacao_saida : {'sigmoid', 'softmax', 'linear'}, opcional
         Função de ativação da camada de saída.
 
-    Retorna
+    Returns
     -------
     jnp.ndarray
         Rótulos preditos (0/1, índice da classe, ou valores contínuos).

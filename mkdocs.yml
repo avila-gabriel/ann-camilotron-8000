@@ -1,0 +1,28 @@
+site_name: ann-camilotron-8000
+
+nav:
+  - Home: index.md
+  - API Reference: reference.md
+  - Exemplos:
+    - Binary Classification of Term Deposit Subscription: examples/bank.md
+    - Regressão Imobiliária: examples/real_state.md
+  - Ambiente de Desenvolvimento: dev.md
+  
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: true
+            merge_init_into_class: true
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true

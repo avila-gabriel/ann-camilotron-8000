@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from nn_functional import (
+from ann import (
     atualizar_parametros,
     codificar_one_hot,
     definir_semente,

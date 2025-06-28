@@ -16,11 +16,12 @@
     "**/.gitignore": true,
     "**/.python-version": true,
     "**/uv.lock": true,
-    "**/pyproject.toml": true,
+    "**/pyproject.toml": false,
     "**/README.md": false,
-    "**/CONTRIBUTING.md": true,
     "**/.pytest_cache": true,
     "**/__pycache__": true,
+    "**/.egg-info": true,
+    "**/site": true,
   },
   "explorer.excludeGitIgnore": false
 }
