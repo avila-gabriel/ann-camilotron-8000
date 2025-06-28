@@ -10,7 +10,7 @@ import ann
 # --- load ------------------------------------------------------------------
 
 df = pd.read_csv("datasets/bank.csv")
-df["y"] = df["deposit"].map({"yes": 1, "no": 0})
+df["y"] = df["deposit"].replace({"yes": 1, "no": 0}).infer_objects(copy=False)
 df = df.drop(columns=["deposit"])
 
 CAT_COLS = [
@@ -29,14 +29,16 @@ NUM_COLS = ["age", "balance", "campaign"]
 
 df_cat = pd.get_dummies(df[CAT_COLS], drop_first=True).astype(float)
 
-X_num = df[NUM_COLS].astype(float).values
+X_num_raw = df[NUM_COLS].astype(float)
+X_num = X_num_raw.to_numpy()
 X_min = X_num.min(axis=0, keepdims=True)
 X_max = X_num.max(axis=0, keepdims=True)
 X_num_norm = (X_num - X_min) / (X_max - X_min + 1e-8)
-df_num = pd.DataFrame(X_num_norm, columns=NUM_COLS, index=df.index)
+
+df_num = pd.DataFrame(X_num_norm, columns=pd.Index(NUM_COLS), index=X_num_raw.index)
 
 X = pd.concat([df_num, df_cat], axis=1).astype(float).values
-y = df["y"].values.reshape(1, -1)
+y = df["y"].to_numpy().reshape(1, -1)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y.T, test_size=0.15, random_state=42, stratify=y.T

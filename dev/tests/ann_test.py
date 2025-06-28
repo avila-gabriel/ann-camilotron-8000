@@ -2,6 +2,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from ann import (
     atualizar_parametros,
     codificar_one_hot,
@@ -96,11 +97,13 @@ def test_propagacao_ante_and_shapes():
     dims = (2, 4, 1)
     key = definir_semente(0)
     params, _ = inicializar_parametros_rede(dims, chave_aleatoria=key)
-    pred, cache = propagacao_ante(X, params)
+    pred, (As, Zs) = propagacao_ante(X, params)
     assert pred.shape == (1, 2)
-    assert cache["A0"].shape == (2, 2)
-    assert cache["A1"].shape == (4, 2)
-    assert cache["A2"].shape == (1, 2)
+    assert As[0].shape == (2, 2)
+    assert As[1].shape == (4, 2)
+    assert As[2].shape == (1, 2)
+    assert Zs[0].shape == (4, 2)
+    assert Zs[1].shape == (1, 2)
 
 
 def test_erro_binario_cruzado():
@@ -139,11 +142,13 @@ def test_atualizar_parametros_values():
     dims = (2, 2, 1)
     key = definir_semente(2)
     params, _ = inicializar_parametros_rede(dims, chave_aleatoria=key)
+    original = {k: np.array(params[k]) for k in params}
     pred, cache = propagacao_ante(X, params)
     grads = propagacao_retro(params, cache, Y)
     updated = atualizar_parametros(params, grads, taxa_aprendizado=0.1)
+    assert updated is params
     for k in params:
-        assert not np.allclose(np.array(params[k]), np.array(updated[k]))
+        assert not np.allclose(original[k], np.array(updated[k]))
 
 
 def test_treinar_rede_xor_end_to_end():
@@ -192,7 +197,6 @@ def test_regressao_linear_end_to_end():
         nome_funcao_erro="erro_mse",
         taxa_aprendizado=0.01,
         numero_epocas=2000,
-        tamanho_lote=2,
         verbose=False,
     )
     y_pred = prever(
@@ -215,7 +219,6 @@ def test_prever_multiclasse_and_regressao():
         nome_funcao_erro="erro_categorial_cruzado",
         taxa_aprendizado=0.1,
         numero_epocas=500,
-        tamanho_lote=3,
         verbose=False,
     )
     y_pred = prever(
@@ -234,7 +237,6 @@ def test_prever_multiclasse_and_regressao():
         nome_funcao_erro="erro_mse",
         taxa_aprendizado=0.01,
         numero_epocas=600,
-        tamanho_lote=2,
         verbose=False,
     )
     yp = prever(Xr, pr, nome_ativacao_oculta="relu", nome_ativacao_saida="linear")

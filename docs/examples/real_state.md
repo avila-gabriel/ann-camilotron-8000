@@ -84,7 +84,7 @@ print("Shapes de treino:", X_train.shape, y_train.shape)
 - Arquitetura: Entrada → 10 neurônios ocultos → 1 saída.
 - Ativação oculta: ReLU; saída: Linear.
 - Função de erro: MSE.
-- Taxa de aprendizado, número de épocas e tamanho do lote definidos.
+- Taxa de aprendizado e número de épocas definidos.
 
 ```python
 params = ann.treinar_rede(
@@ -100,7 +100,6 @@ params = ann.treinar_rede(
     nome_funcao_erro="erro_mse",
     taxa_aprendizado=0.05,
     numero_epocas=2000,
-    tamanho_lote=16,
     verbose=True,
 )
 ```

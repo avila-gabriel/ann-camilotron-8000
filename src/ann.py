@@ -49,11 +49,8 @@ def codificar_one_hot(
     jnp.ndarray
         Matriz one-hot de forma (numero_classes, n_amostras).
     """
-    matriz_one_hot = jnp.zeros((numero_classes, rotulos_inteiros.size))
-    matriz_one_hot = matriz_one_hot.at[
-        rotulos_inteiros, jnp.arange(rotulos_inteiros.size)
-    ].set(1.0)
-    return matriz_one_hot
+    matriz = jnp.zeros((numero_classes, rotulos_inteiros.size))
+    return matriz.at[rotulos_inteiros, jnp.arange(rotulos_inteiros.size)].set(1.0)
 
 
 def inicializar_parametros_rede(
@@ -107,6 +104,7 @@ def inicializar_parametros_rede(
             0.01 if (i == 1 and nome_ativacao_oculta == "relu") else 0.0
         ) * jnp.ones((fan_out, 1))
     return parametros, chave_aleatoria
+
 
 # activations
 def relu(entrada_linear: jnp.ndarray) -> jnp.ndarray:
@@ -271,14 +269,78 @@ def linear_derivada(
     """
     return gradiente_saida
 
-#forward-propagation
+
+def tanh(entrada_linear: jnp.ndarray) -> jnp.ndarray:
+    """
+    Aplica a função de ativação tangente hiperbólica (tanh) elemento a elemento.
+
+    A tanh produz saídas no intervalo (-1, 1), centradas na origem, o que pode
+    acelerar o aprendizado em redes profundas ao reduzir o viés de média das
+    ativações.
+
+    Parameters
+    ----------
+    entrada_linear : jnp.ndarray
+        Array de ativações lineares (pré-ativação).
+
+    Returns
+    -------
+    jnp.ndarray
+        Array com tanh aplicada elemento a elemento.
+    """
+    return jnp.tanh(entrada_linear)
+
+
+def tanh_derivada(
+    gradiente_saida: jnp.ndarray, entrada_linear: jnp.ndarray
+) -> jnp.ndarray:
+    """
+    Calcula o gradiente da função tanh.
+
+    A derivada da tanh é 1 - tanh²(x). Multiplicamos esse fator pelo
+    gradiente vindo da camada posterior para obter o gradiente em
+    relação à entrada linear.
+
+    Parameters
+    ----------
+    gradiente_saida : jnp.ndarray
+        Gradiente do custo em relação à saída da tanh.
+    entrada_linear : jnp.ndarray
+        Valor da entrada linear (antes da tanh).
+
+    Returns
+    -------
+    jnp.ndarray
+        Gradiente do custo em relação à entrada linear.
+    """
+    saida_tanh = tanh(entrada_linear)
+    return gradiente_saida * (1 - saida_tanh**2)
+
+
+_ATIVACOES: dict[str, Callable[[jnp.ndarray], jnp.ndarray]] = {
+    "relu": relu,
+    "sigmoid": sigmoid,
+    "tanh": tanh,
+    "softmax": softmax,
+    "linear": linear,
+}
+
+_DERIVADAS: dict[str, Callable[[jnp.ndarray, jnp.ndarray], jnp.ndarray]] = {
+    "relu": relu_derivada,
+    "sigmoid": sigmoid_derivada,
+    "tanh": tanh_derivada,
+    "linear": linear_derivada,
+}
+
+
+# forward-propagation
 def propagacao_ante(
     matriz_entrada: jnp.ndarray,
     parametros_rede: dict[str, jnp.ndarray],
     *,
     nome_ativacao_oculta: str = "relu",
     nome_ativacao_saida: str = "sigmoid",
-) -> tuple[jnp.ndarray, dict[str, jnp.ndarray]]:
+) -> tuple[jnp.ndarray, tuple[list[jnp.ndarray], list[jnp.ndarray]]]:
     """
     Executa a passagem para frente na rede, armazenando intermediários.
 
@@ -297,37 +359,29 @@ def propagacao_ante(
     -------
     matriz_predicoes : jnp.ndarray
         Saída final da rede (probabilidades, logits ou valores contínuos).
-    cache_propagacao : dict[str, jnp.ndarray]
+    cache_propagacao : tuple[list[jnp.ndarray], list[jnp.ndarray]]
         Intermediários (A0, Z1, A1, ...).
     """
-    cache_propagacao: dict[str, jnp.ndarray] = {"A0": matriz_entrada}
-    ativacoes = matriz_entrada
-    numero_camadas = len(parametros_rede) // 2
+    As: list[jnp.ndarray] = [matriz_entrada]  # A0
+    Zs: list[jnp.ndarray] = []  # Z1…ZL
+    num_camadas = len(parametros_rede) // 2
 
-    mapa_ativacao: dict[str, Callable[[jnp.ndarray], jnp.ndarray]] = {
-        "relu": relu,
-        "sigmoid": sigmoid,
-        "softmax": softmax,
-        "linear": linear,
-    }
+    # hidden layers
+    for c in range(1, num_camadas):
+        Z = parametros_rede[f"W{c}"] @ As[-1] + parametros_rede[f"b{c}"]
+        A = _ATIVACOES[nome_ativacao_oculta](Z)
+        Zs.append(Z)
+        As.append(A)
 
-    for indice_camada in range(1, numero_camadas):
-        entrada_linear = (
-            parametros_rede[f"W{indice_camada}"] @ ativacoes
-            + parametros_rede[f"b{indice_camada}"]
-        )
-        ativacoes = mapa_ativacao[nome_ativacao_oculta](entrada_linear)
-        cache_propagacao[f"Z{indice_camada}"] = entrada_linear
-        cache_propagacao[f"A{indice_camada}"] = ativacoes
-
-    entrada_linear_saida = (
-        parametros_rede[f"W{numero_camadas}"] @ ativacoes
-        + parametros_rede[f"b{numero_camadas}"]
+    # output layer
+    ZL = (
+        parametros_rede[f"W{num_camadas}"] @ As[-1] + parametros_rede[f"b{num_camadas}"]
     )
-    predicoes = mapa_ativacao[nome_ativacao_saida](entrada_linear_saida)
-    cache_propagacao[f"Z{numero_camadas}"] = entrada_linear_saida
-    cache_propagacao[f"A{numero_camadas}"] = predicoes
-    return predicoes, cache_propagacao
+    AL = _ATIVACOES[nome_ativacao_saida](ZL)
+    Zs.append(ZL)
+    As.append(AL)
+
+    return AL, (As, Zs)
 
 
 def erro_binario_cruzado(
@@ -402,10 +456,11 @@ def erro_mse(predicoes: jnp.ndarray, rotulos_reais: jnp.ndarray) -> float:
     """
     return float(jnp.mean((predicoes - rotulos_reais) ** 2))
 
+
 # back-propagation
 def propagacao_retro(
     parametros_rede: dict[str, jnp.ndarray],
-    cache_propagacao: dict[str, jnp.ndarray],
+    cache_propagacao: tuple[list[jnp.ndarray], list[jnp.ndarray]],
     rotulos_reais: jnp.ndarray,
     *,
     nome_ativacao_oculta: str = "relu",
@@ -418,7 +473,7 @@ def propagacao_retro(
     ----------
     parametros_rede : dict[str, jnp.ndarray]
         Pesos e viéses da rede.
-    cache_propagacao : dict[str, jnp.ndarray]
+    cache_propagacao : tuple[list[jnp.ndarray], list[jnp.ndarray]]
         Intermediários da forward pass (Z1, A1, ..., ZL, AL).
     rotulos_reais : jnp.ndarray
         Rótulos verdadeiros (binário 1 x m ou one-hot n_classes x m).
@@ -430,36 +485,26 @@ def propagacao_retro(
     dict[str, jnp.ndarray]
         Gradientes dW1…dWL, db1…dbL normalizados por m.
     """
-    gradientes_parametros: dict[str, jnp.ndarray] = {}
-    numero_camadas = len(parametros_rede) // 2
+    As, Zs = cache_propagacao
+    grads: dict[str, jnp.ndarray] = {}
     m = rotulos_reais.shape[1]
+    L = len(parametros_rede) // 2
 
-    A_saida = cache_propagacao[f"A{numero_camadas}"]
-    dZ = A_saida - rotulos_reais
-    gradientes_parametros[f"dW{numero_camadas}"] = (
-        dZ @ cache_propagacao[f"A{numero_camadas - 1}"].T
-    ) / m
-    gradientes_parametros[f"db{numero_camadas}"] = (
-        jnp.sum(dZ, axis=1, keepdims=True) / m
-    )
-    dA_prev = parametros_rede[f"W{numero_camadas}"].T @ dZ
+    # output layers (dZ = AL - Y, valido p/ sigmoid ou softmax)
+    dZ = As[-1] - rotulos_reais
+    grads[f"dW{L}"] = (dZ @ As[-2].T) / m
+    grads[f"db{L}"] = jnp.sum(dZ, axis=1, keepdims=True) / m
+    dA_prev = parametros_rede[f"W{L}"].T @ dZ
 
-    mapa_derivadas = {
-        "relu": relu_derivada,
-        "sigmoid": sigmoid_derivada,
-        "linear": linear_derivada,
-    }
-    for camada in range(numero_camadas - 1, 0, -1):
-        Zc = cache_propagacao[f"Z{camada}"]
-        dZ = mapa_derivadas[nome_ativacao_oculta](dA_prev, Zc)
-        gradientes_parametros[f"dW{camada}"] = (
-            dZ @ cache_propagacao[f"A{camada - 1}"].T
-        ) / m
-        gradientes_parametros[f"db{camada}"] = jnp.sum(dZ, axis=1, keepdims=True) / m
-        if camada > 1:
-            dA_prev = parametros_rede[f"W{camada}"].T @ dZ
+    # hidden layers (reverso)
+    for c in range(L - 1, 0, -1):
+        dZ = _DERIVADAS[nome_ativacao_oculta](dA_prev, Zs[c - 1])
+        grads[f"dW{c}"] = (dZ @ As[c - 1].T) / m  # type: ignore
+        grads[f"db{c}"] = jnp.sum(dZ, axis=1, keepdims=True) / m
+        if c > 1:
+            dA_prev = parametros_rede[f"W{c}"].T @ dZ
 
-    return gradientes_parametros
+    return grads
 
 
 def atualizar_parametros(
@@ -485,17 +530,10 @@ def atualizar_parametros(
     dict[str, jnp.ndarray]
         Novo dicionário de Parameters após atualização.
     """
-    novo_parametros: dict[str, Array] = {}
-    for indice_camada in range(1, len(parametros_rede) // 2 + 1):
-        novo_parametros[f"W{indice_camada}"] = (
-            parametros_rede[f"W{indice_camada}"]
-            - taxa_aprendizado * gradientes_parametros[f"dW{indice_camada}"]
-        )
-        novo_parametros[f"b{indice_camada}"] = (
-            parametros_rede[f"b{indice_camada}"]
-            - taxa_aprendizado * gradientes_parametros[f"db{indice_camada}"]
-        )
-    return novo_parametros
+    for c in range(1, len(parametros_rede) // 2 + 1):
+        parametros_rede[f"W{c}"] -= taxa_aprendizado * gradientes_parametros[f"dW{c}"]
+        parametros_rede[f"b{c}"] -= taxa_aprendizado * gradientes_parametros[f"db{c}"]
+    return parametros_rede
 
 
 def treinar_rede(
@@ -508,7 +546,6 @@ def treinar_rede(
     nome_funcao_erro: str = "erro_binario_cruzado",
     taxa_aprendizado: float = 0.01,
     numero_epocas: int = 1000,
-    tamanho_lote: int = 32,
     semente: int = 42,
     verbose: bool = True,
 ) -> dict[str, jnp.ndarray]:
@@ -533,8 +570,6 @@ def treinar_rede(
         Taxa de atualização do gradiente.
     numero_epocas : int, opcional
         Número de épocas de treinamento.
-    tamanho_lote : int, opcional
-        Tamanho do mini-batch.
     semente : int, opcional
         Semente para reprodutibilidade.
     verbose : bool, opcional
@@ -545,51 +580,41 @@ def treinar_rede(
     parametros_rede : dict[str, jnp.ndarray]
         Parameters aprendidos ao final do treinamento.
     """
-    chave_aleatoria = definir_semente(semente)
-    parametros_rede, chave_aleatoria = inicializar_parametros_rede(
+    chave = definir_semente(semente)
+    parametros_rede, _ = inicializar_parametros_rede(
         dimensoes_camadas,
-        chave_aleatoria=chave_aleatoria,
+        chave_aleatoria=chave,
         nome_ativacao_oculta=nome_ativacao_oculta,
     )
 
-    numero_amostras = matriz_entrada.shape[1]
-    historico_erros: list[float] = []
-
-    funcoes_erro: dict[str, Callable[[jnp.ndarray, jnp.ndarray], float]] = {
+    erros = {
         "erro_binario_cruzado": erro_binario_cruzado,
         "erro_categorial_cruzado": erro_categorial_cruzado,
         "erro_mse": erro_mse,
     }
-    calcular_erro = funcoes_erro[nome_funcao_erro]
+    loss_fn = erros[nome_funcao_erro]
 
-    for epoca in range(1, numero_epocas + 1):
-        chave_aleatoria, chave_sub = jax.random.split(chave_aleatoria)
-        indices_embaralhados = jax.random.permutation(chave_sub, numero_amostras)
-        for inicio in range(0, numero_amostras, tamanho_lote):
-            indices_lote = indices_embaralhados[inicio : inicio + tamanho_lote]
-            entradas_lote = matriz_entrada[:, indices_lote]
-            rotulos_lote = matriz_rotulos[:, indices_lote]
+    for ep in range(1, numero_epocas + 1):
+        pred, cache = propagacao_ante(
+            matriz_entrada,
+            parametros_rede,
+            nome_ativacao_oculta=nome_ativacao_oculta,
+            nome_ativacao_saida=nome_ativacao_saida,
+        )
+        grads = propagacao_retro(
+            parametros_rede,
+            cache,
+            matriz_rotulos,
+            nome_ativacao_oculta=nome_ativacao_oculta,
+        )
+        parametros_rede = atualizar_parametros(parametros_rede, grads, taxa_aprendizado)
 
-            predicoes_lote, cache_propagacao = propagacao_ante(
-                entradas_lote,
-                parametros_rede,
-                nome_ativacao_oculta=nome_ativacao_oculta,
-                nome_ativacao_saida=nome_ativacao_saida,
-            )
-            erro_lote = calcular_erro(predicoes_lote, rotulos_lote)
-            gradientes_parametros = propagacao_retro(
-                parametros_rede,
-                cache_propagacao,
-                rotulos_lote,
-                nome_ativacao_oculta=nome_ativacao_oculta,
-            )
-            parametros_rede = atualizar_parametros(
-                parametros_rede, gradientes_parametros, taxa_aprendizado
-            )
-        historico_erros.append(erro_lote)
-        if verbose and epoca % max(1, numero_epocas // 10) == 0:
-            print(f"Época {epoca:>4}/{numero_epocas} – erro: {erro_lote:.6f}")
+        if verbose and ep % max(1, numero_epocas // 10) == 0:
+            loss = loss_fn(pred, matriz_rotulos)
+            print(f"Época {ep:>4}/{numero_epocas} - erro: {loss:.6f}")
+
     return parametros_rede
+
 
 def prever(
     matriz_entrada: jnp.ndarray,

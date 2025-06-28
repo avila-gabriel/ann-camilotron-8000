@@ -10,7 +10,7 @@ import ann
 df = pd.read_csv("datasets/real_estate_dataset.csv")
 
 X_df = df.drop(columns=["ID", "Price"])
-y = df["Price"].values.reshape(1, -1)
+y = df["Price"].to_numpy().reshape(1, -1)
 X = X_df.values.T
 
 X_min = X.min(axis=1, keepdims=True)

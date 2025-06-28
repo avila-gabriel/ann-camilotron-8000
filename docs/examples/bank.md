@@ -97,7 +97,6 @@ params = ann.treinar_rede(
     nome_funcao_erro="erro_binario_cruzado",
     taxa_aprendizado=0.01,
     numero_epocas=1000,
-    tamanho_lote=128,
     dropout_prob=0.0,
     semente=42,
     verbose=True,
