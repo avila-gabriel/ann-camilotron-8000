@@ -51,7 +51,7 @@ def carregar_mnist_local(caminho_pasta):
 
 
 # 2
-caminho_dados_mnist = "../datasets/mnist_data/"  # Ajuste se necessário
+caminho_dados_mnist = "datasets/mnist_data/"  # Ajuste se necessário
 
 (X_train_flat, y_train_int), (X_test_int, y_test_int) = carregar_mnist_local(
     caminho_dados_mnist

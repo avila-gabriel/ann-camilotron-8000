@@ -21,7 +21,7 @@ def codificar_rotulos_texto(rotulos_texto: pd.Series) -> tuple[jnp.ndarray, dict
 
 
 # 2
-df = pd.read_csv("../datasets/iris.csv")
+df = pd.read_csv("datasets/iris.csv")
 df.head()
 
 # 3

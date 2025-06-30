@@ -10,8 +10,8 @@ SEMENTE_GLOBAL = 42
 
 # 1
 print("Carregando arquivos CSV")
-caminho_treino = "../datasets/fashion_mnist_data/fashion-mnist_train.csv"
-caminho_teste = "../datasets/fashion_mnist_data/fashion-mnist_test.csv"
+caminho_treino = "datasets/fashion_mnist_data/fashion-mnist_train.csv"
+caminho_teste = "datasets/fashion_mnist_data/fashion-mnist_test.csv"
 
 df_train = pd.read_csv(caminho_treino)
 df_test = pd.read_csv(caminho_teste)
